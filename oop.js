@@ -28,40 +28,40 @@
   // 表示一个复数(complex number)
   class Complex {
     constructor (real, imag) {
-        this.realP = real;
-        this.imagP = imag;
+        this.real = real;
+        this.imag = imag;
     }
 
     minus (param) {
-        let realP = this.realP - param.realP;
-        let imagP = this.imagP - param.imagP;
-        return new Complex (realP, imagP);
+        let real = this.real - param.realP;
+        let imag = this.imag - param.imagP;
+        return new Complex (real, imag);
     }
 
     plus (param) {
-        let realP = this.realP + param.realP;
-        let imagP = this.imagP + param.imagP;
-        return new Complex (realP, imagP);
+        let real = this.real + param.real;
+        let imag = this.imag + param.imag;
+        return new Complex (real, imag);
     }
 
     multiple (param) {
-        let realP = this.realP * param.realP - this.imagP * param.imagP;
-        let imagP = this.realP * param.imagP + this.imagP * param.realP;
-        return new Complex (realP, imagP);
+        let real = this.real * param.real - this.imag * param.imag;
+        let imag = this.real * param.imag + this.imag * param.real;
+        return new Complex (real, imag);
     }
 
     div (param) {
-       let helper = new Complex (param.realP, -param.imagP);
-       let denominator = param.multiple(helper).realP;
+       let helper = new Complex (param.real, -param.imag);
+       let denominator = param.multiple(helper).real;
        let numrator =this.multiple(helper);  
 
-       let realP = numrator.realP / denominator;
-       let imagP = numrator.imagP / denominator;
-       return new Complex (realP, imagP);
+       let real = numrator.real / denominator;
+       let imag = numrator.imag / denominator;
+       return new Complex (real, imag);
     }
     
     get toString () {
-        return '' + this.realP + ' + ' + this.imagP + 'i'
+        return '' + this.real + ' + ' + this.imag + 'i'
     }
      
   }
@@ -366,14 +366,14 @@ class Stack {
     }
 
 // 向栈中增加元素
-    in (value) {
+   push (value) {
         this.elements.push(value);
         this.length++;
     }
 
   // 从栈中取出元素并删除栈顶元素
    
-    out () {
+    pop () {
         let result = this.elements[this.length - 1];
         this.elements.pop()
         this.length--;

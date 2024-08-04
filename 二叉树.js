@@ -43,39 +43,71 @@ class TreeNode {
   let arr1 = [1,2,null, 4,5,null];
   // 将leetcode表示树的数组转换为链式表达
   function condensedArrayToTree(array) {
-    if (array == null) {
-        return null;
-    } 
-
-    let root = new TreeNode(array[0]);
-    let nodes = [root];
-    for (let i = 1; i < array.length; i++) {
-        let current = nodes.shift();
-        if (array[i] == null) {
-            var node = null;
-        } else {
-            var node = new TreeNode(array[i]);
-            nodes.push(node);
-        }
-        current.left = node;
-        i++;
-        if (array[i] == null) {
-            var node = null;
-        } else {
-            var node = new TreeNode(array[i]);
-            nodes.push(node);
-        }
-        current.right = node;
-    }
-    return root;
+    
 }
+
+function treeToArray1 (root) {
+    //转换成数组后含null值
+    let result = [];
+    if (root == null) {
+        return result;
+    }
+
+    let nodes = [root];
+    while (nodes.length > 0) {
+        let current = nodes.shift();
+        if (current) {
+            result.push(current.val);
+            nodes.push(current.left, current.right);
+        } else {
+            result.push(current);
+        }
+    } 
+    return result;
+}
+
+function treeToArray1 (root, index, array = []) {
+    if (root) {
+        array[index] = root.val;
+        treeToArray(root.left, index * 2 + 1);
+        treeToArray(root.right, index * 2 + 2);
+    }
+    return array;
+}
+
 
   // 上面函数的反向运算
   // 即传入一个链式表达的二叉树，返回其被用稠密的方式放入数组中的结果
-  function treeToCondensedArray(root) {
-    
-  }
+  let v = [1, 2, null, 4, null, 5]
+  function condensedArrayToTree1 (array) {
+    //含有null
+    if (array == null) {
+      return null;
+    }
+    let root = new TreeNode(array[0]);
+    let nodes = [root];
+    for (let i = 1; i < array.length; i++) {
+      let current = nodes.shift();
+      if (array[i] == null) {
+        var node = null;
+      } else {
+        var node = new TreeNode(array[i]);
+        nodes.push(node);
+      }
 
+      current.left = node;
+      i++;
+
+      if (array[i] == null) {
+        var node = null;
+      } else {
+        var node = new TreeNode(array[i]);
+        nodes.push(node);
+      }
+      current.right = node; 
+    }
+    return root;
+  }
 
   /**
    * 二叉树的遍历：
@@ -97,8 +129,35 @@ class TreeNode {
    *   那么按照“读过每一部分”的顺序对每一部分排序，得到先序遍历
    *   按“读到一半”排序得到的是中序
    *   按“读完排序”得到的是后序
-   * 
-   * 
-   * 
-   * 
    */
+  var arr3 = [1, 2, 3, 4, 5, 6];
+  var tree3 = arrayToTree(arr3);
+  function iterate1 (root, predicate) {
+    //先序遍历， root -> left -> right
+    if (root) {
+      let val = root.val;
+      predicate(val);
+      iterate1(root.left, predicate);
+      iterate1(root.right, predicate)
+    }
+  }
+
+  function iterate2 (root, predicate) {
+    //中序遍历， left -> root -> right
+    if (root) {
+      iterate2(root.left, predicate);
+      let val = root.val;
+      predicate(val);
+      iterate2(root.right, predicate);
+    }
+  }
+
+  function iterate3 (root, predicate) {
+    //后序遍历， left -> right -> root
+    if (root) {
+      iterate3(root.left, predicate);
+      iterate3(root.right, predicate);
+      let val = root.val;
+      predicate(val);
+    }
+  }
