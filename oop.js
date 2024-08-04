@@ -52,8 +52,8 @@
 
     div (param) {
        let helper = new Complex (param.realP, -param.imagP);
-       let numrator = this.multiple (helper);
-       let denominator = helper.realP * helper.realP;  
+       let denominator = param.multiple(helper).realP;
+       let numrator =this.multiple(helper);  
 
        let realP = numrator.realP / denominator;
        let imagP = numrator.imagP / denominator;
@@ -101,15 +101,23 @@ class LinkedList {
     }
 
     at (index) {
+        if (this.head == null) {
+            return undefined;
+        }
         let pointer = this.head;
         while (index > 0 && pointer) {
             pointer = pointer.next;
             index--;
         }
-        return pointer.val;
+        if (pointer) {
+            return pointer.val;
+        } else {
+            return undefined;
+        }
     }
 
     set (index, value) {
+        //不创建节点， 只设置值， 不改变长度
         let pointer = this.head;
         while (index > 0 && pointer) {
             pointer = pointer.next;
@@ -121,13 +129,17 @@ class LinkedList {
     }
 
     append (value) {
-        let node = new Node (value);
+        let node = {
+            val: value, 
+            next: null,
+        }
         this.length++;
         if (this.head == null) {
-            return node;
+            this.head = node;
+            return this;
         }
         let pointer = this.head;
-        while (!pointer.next) {
+        while (pointer.next) {
             pointer = pointer.next
         }
         pointer.next = node;
@@ -135,13 +147,18 @@ class LinkedList {
     }
 
     prepend (value) {
-        let node = new Node (value);
+        let node = {
+            val: value,
+            next: null,
+        }
         this.length++;
         if (this.head == null) {
-            return node;
+            this.head = node;
+            return this;
         }
-        node.nextl = this.head;
-        return node;
+        node.next = this.head;
+        this.head = node;
+        return this;
     }
 
     pop () {
@@ -175,6 +192,17 @@ class LinkedList {
         return result;
     }
 
+    unshift (value) {
+        let node = {
+            val: value, 
+            next: null, 
+        }
+        this.length++;
+        node.next = this.head;
+        this.head = node;
+        return this;
+    }
+
     get toArray () {
         let result = [];
         let pointer = this.head;
@@ -186,7 +214,7 @@ class LinkedList {
     }
 
     get toString () {
-        return this.head.toArray().join(',');
+        return this.toArray.join(',');
     }
 
     get size () {
@@ -222,6 +250,7 @@ class MySet {
 
     add (value) {
         if (!this.elements.includes(value)) {
+            this.elements.push(value);
             return this;
         }
     }
@@ -276,7 +305,7 @@ class MyMap {
                 return this;
             }
         }
-        this.pairs.push(key, val);
+        this.pairs.push(key, value);
         return this;
     }
 
@@ -343,9 +372,12 @@ class Stack {
     }
 
   // 从栈中取出元素并删除栈顶元素
+   
     out () {
+        let result = this.elements[this.length - 1];
         this.elements.pop()
         this.length--;
+        return result; 
     }
 
   // 查看但不删除栈顶元素
