@@ -9,7 +9,7 @@ class TreeNode {
   // pos是根结点的位置
   // 此时函数的定义应该转换为从数组中将根结点在pos位置的二叉树转换成链式表达的二叉树
 
-  let arr = [1,2,3,4,5,67];
+
   function arrayToTree(array, pos = 0) {
     if (array[pos] == null) return null;
 
@@ -19,7 +19,7 @@ class TreeNode {
     root.right = arrayToTree(array, pos * 2 + 2);
     return root;
   }
-  let tr = arrayToTree(arr);
+  
   // 上面函数的相反操作
 
   function treeToArray(root, idx = 0, array = []) {
@@ -40,7 +40,7 @@ class TreeNode {
     }
     return array;
   }
-  let arr1 = [1,2,null, 4,5,null];
+  
   // 将leetcode表示树的数组转换为链式表达
   function condensedArrayToTree(array) {
     
@@ -78,7 +78,7 @@ function treeToArray1 (root, index, array = []) {
 
   // 上面函数的反向运算
   // 即传入一个链式表达的二叉树，返回其被用稠密的方式放入数组中的结果
-  let v = [1, 2, null, 4, null, 5]
+ 
   function condensedArrayToTree1 (array) {
     //含有null
     if (array == null) {
@@ -130,8 +130,7 @@ function treeToArray1 (root, index, array = []) {
    *   按“读到一半”排序得到的是中序
    *   按“读完排序”得到的是后序
    */
-  var arr3 = [1, 2, 3, 4, 5, 6];
-  var tree3 = arrayToTree(arr3);
+  
   function iterate1 (root, predicate) {
     //先序遍历， root -> left -> right
     if (root) {
@@ -159,5 +158,53 @@ function treeToArray1 (root, index, array = []) {
       iterate3(root.right, predicate);
       let val = root.val;
       predicate(val);
+    }
+  }
+
+  class MultiplicatorUnitFailure extends Error { }
+
+  function primitiveMultiply(a, b) {
+    if (Math.random() > 0.5) {
+      return a * b
+    } else {
+      throw new MultiplicatorUnitFailure('failed')
+    }
+  }
+
+  function multiply(a, b) {
+    try {
+      return primitiveMultiply(a, b);
+    } catch (err) {
+      if (err instanceof MultiplicatorUnitFailure) {
+        return multiply(a, b);
+      }
+    }
+  }
+
+
+
+
+
+
+
+
+
+  var box = {
+    locked: true,
+    unlock: function () { this.locked = false; },
+    lock: function () { this.locked = true; },
+    _content: [],
+    get content() {
+      if (this.locked) throw new Error(" Locked !");
+      return this._content;
+    }
+  }; 
+
+  function withBoxUnlocked (func) {
+    box.unlock();
+    try {
+      func();
+    } finally {
+      box.lock();
     }
   }

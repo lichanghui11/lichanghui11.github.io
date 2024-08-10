@@ -190,14 +190,44 @@
       操作(root.val)
     }
   }
+
+  class MultiplicatorUnitFailure extends Error { }
+
+function primitiveMultiply(a, b) {
+  if (Math.random() > 0.5) {
+    return a * b
+  } else {
+    throw new MultiplicatorUnitFailure('failed')
+  }
+}
+
+function multiply(a, b) {
+
+}
+
+
+
+
+
+
+
+
+
+var box = {
+  locked: true,
+  unlock: function () { this.locked = false; },
+  lock: function () { this.locked = true; },
+  _content: [],
+  get content() {
+    if (this.locked) throw new Error(" Locked !");
+    return this._content;
+  }
+};
 </script>
 leetcode题目：
 https://leetcode.cn/problems/binary-tree-inorder-traversal/
 https://leetcode.cn/problems/binary-tree-preorder-traversal/
 https://leetcode.cn/problems/binary-tree-postorder-traversal/
-
-
-
 https://leetcode.cn/problems/invert-binary-tree/
 https://leetcode.cn/problems/same-tree/
 https://leetcode.cn/problems/binary-tree-level-order-traversal/
