@@ -16,9 +16,10 @@ var lichanghui11 = {
     compact(array) {
         var res = [];
         for (var item of array) {
-            if (item !== false) {
+            if (item) {
                 res.push(item);
             }
+
         }
         return res;
     },
@@ -34,7 +35,43 @@ var lichanghui11 = {
         return array;
     },
 
-    difference() {
+    difference(array, values) {
+        var res = [];
+        for (var i = 0; i < array.length; i++) {
+            for (var item2 of values) {
+                if (array[i] === item2) {
+                    array[i] = undefined;
+                }
+            }
+        } 
+        for (var item3 of array) {
+            if (item3 !== undefined) {
+                res.push(item3);
+            }
+        }
+        return res;
+    },
 
+    differenceBy (array, args, fn) {
+        var res = new MySet1(args.map(fn));
+        
+        return array.map(fn).filter(item => !res.has(item));
     }
 }
+
+class MySet1 {
+    constructor (array) {
+        this._set = [];
+        for (var item of array) {
+            if (!this._set.includes(item)) this._set.push(item);
+        }
+    }
+
+    has (val) {
+        for (var item of this._set) {
+            if (item === val) return true;
+        }
+        return false;
+    }
+}
+
