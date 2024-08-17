@@ -65,9 +65,8 @@ round,ceil,floor,cloneDeep
 trim,trimStart,trimEnd,assign,merge,
 
   */
-  filter(collection, predicate) {
-    
-  }, 
+  
+  
 
 
   map(collection, iteratee) {
@@ -124,30 +123,7 @@ trim,trimStart,trimEnd,assign,merge,
   }, 
 
 
-  countBy(collection, iteratee) {
-    let res = {};
-    if (typeof iteratee === 'function') {
-      for (let i = 0; i < collection.length; i++) {
-        let temp = iteratee(collection[i], i, collection);
-        if (res[temp]) {
-          res[temp]++;
-        } else {
-          res[temp] = 1;
-        }
-      }
-    } else if (iteratee in collection) {
-      let pro
-      for (let i = 0; i < collection.length; i++) {
-        let temp = collection[i].iteratee;
-        if (res[temp]) {
-          res[temp]++;
-        } else {
-          res[temp] = 1;
-        }
-      }
-    }
-    return res;
- },
+  
 
  /*
  JavaScript: Check if an Object Has a Property Methods
@@ -208,28 +184,7 @@ trim,trimStart,trimEnd,assign,merge,
     return -1;
   },
 
-  findIndex(array, predicate, fromIndex = 0) {
-    if (typeof predicate == Function) {
-      for (let i = fromIndex; i < array.length; i++) {
-        if (predicate(array[i], i, array)) return i;
-      }
-    } else if (Array.isArray(predicate)) {
-      return isArrayMatch(array, arr);
-    } else if (typeof predicate == Object) {
-      return isObjMatch(array[0], obj);
-    }
-  },
-
-
-  findLastIndex(array, fn, from) {
-    for (let i = from; i > -1; i--) {
-      if (fn(array[i])) {
-        return i;
-      } else {
-        return -1;
-      }
-    }
-  },
+ 
 
   flatten(array) {
     let res = [];
@@ -259,21 +214,10 @@ trim,trimStart,trimEnd,assign,merge,
     return res;
   },
 
-  flattenDepth: function flattenDepth(array, depth = 1) {
-    let res = [];
-    for (let item of array) {
-      if (Array.isArray(item)) {
-        return flattenDepth(item, depth);
-        if (i >= depth) res.push(item);
-      } else {
-        res.push(item);
-      }
-    }
-    return res;
-  },
+  
 
   fromPairs(pairs) {
-    let obj = [];
+    let obj = {}; 
     for (let i = 0; i < pairs.length; i++) {
       if (Array.isArray(pairs[i])) {
         for (let j = 0; j < pairs[i].length; j += 2) {
@@ -314,29 +258,7 @@ trim,trimStart,trimEnd,assign,merge,
   },
 
 
-  difference(array, values) {
-    var res = [];
-    for (var i = 0; i < array.length; i++) {
-      for (var item2 of values) {
-        if (array[i] === item2) {
-          array[i] = undefined;
-        }
-      }
-    }
-    for (var item3 of array) {
-      if (item3 !== undefined) {
-        res.push(item3);
-      }
-    }
-    return res;
-  },
-
-  differenceBy(array, args, fn) {
-    var res = new MySet1(args.map(fn));
-
-    return array.map(fn).filter(item => !res.has(item));
-  },
-
+  
 
 }
 
