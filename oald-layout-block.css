@@ -26,7 +26,7 @@ section {
   display: inline-block;
   width: calc(100% - 600px);
   border: 1px solid;
-  
+  min-width: 300px;
   > header {
     height: 100px;
     background-color: lightgreen;
@@ -77,4 +77,8 @@ header {
 main {
   height: calc(100% - 100px);
   overflow: auto;
+}
+
+.wrap {
+  white-space: nowrap;
 }
