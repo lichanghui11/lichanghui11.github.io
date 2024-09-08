@@ -1,4 +1,4 @@
-* {
+x* {
   box-shadow: 0 0 3px 0 peru inset;
 }
 html, body {
@@ -50,7 +50,7 @@ section {
 .a1 input {
   width: 130px;
   height: 25px;
-
+  margin-left: 2px;
 }
 .a1 button {
   width: 40px;
@@ -72,11 +72,13 @@ header {
   font-size: 28px;
   line-height: 100px;
   padding-left: 30px;
+  border: 1px solid;
 }
 
 main {
   height: calc(100% - 100px);
   overflow: auto;
+  white-space: wrap;
 }
 
 .wrap {
