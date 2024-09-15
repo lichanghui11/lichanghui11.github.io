@@ -57,3 +57,40 @@ div.轮播图菜单 {
     }
   }
 }
+
+div.保障服务 {
+  a::after {
+    content: '';
+    position: absolute;
+    border: 1px solid #cfcdcb;
+    border-bottom: none;
+    width: 65px;
+    top: 3px;
+    left: 9px;
+  }
+  a::before {
+    content: '';
+    position: absolute;
+    border: 1px solid #cfcdcb;
+    border-left: none;
+    height: 69px;
+    left: 3px;
+    top: 9px; 
+  }
+}
+@keyframes 上移阴影 {
+  from {
+    transform: translatey(0px);
+    box-shadow: none;
+  }
+  to {
+    transform: translateY(5pz);
+    box-shadow:  0 1px 2px -1px rgb(0 0 0 0.1);
+  } 
+}
+.产品1 {
+  > a:hover {
+    transition: all 300ms;
+    transform: translateY(-3px);
+  }
+}
