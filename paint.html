@@ -295,33 +295,102 @@
   //画一个【大小位置都合适】的sin(x)的图像
   function drawSin(A, B, D, x, color) {
     //A振幅， B周期， D垂直位移； 
+
     for (let i = 0; i < x; i++) {
       let j = A * Math.sin(B * i) + D;
       dot(i, j, color);
     }
   }
+  //该Sin图像周期大约为(2 * 3.14 / (1 / 20))即125px; 
   drawSin(20, 1 / 20, 100, 1000, 'green');
-  // * 如果做出上一题后，尝试将其每个点的坐标乘以一个矩阵（如(2,0,0,2)或(1,0.27得到新的位置，即绘制出被线性变换后的色彩空间某一面
-  //     * 画一个实心的圆，半径至少为100像素
 
-  //   * 画一个【大小位置都合适】的sin(x)的图像
+  //画出rgb色彩空间的某一面（尺寸要大于100x100）
+  function squareRGB() {
+    for (let g = 0; g < 256; g++) {
+      for (let b = 0; b < 256; b++) {
+        let color = 'rgb(' + 0 + ',' + g + ',' + b + ')';
+        dot(g + 10, b + 300, color);
+      }
+    }
+  }
+  squareRGB();
+  //如下几种矩阵：
+  //  2 0
+  //  0 2
+  function squareTrans1() {
+    for (let g = 0; g < 256; g++) {
+      for (let b = 0; b < 256; b++) {
+        let color = 'rgb(' + 0 + ',' + g + ',' + b + ')';
+        x = g * 2;
+        y = b * 2;
+        dot(x + 400, y + 440, color);
+        dot(x + 1 + 400, y + 440, color);
+        dot(x + 400, y + 1 + 440, color);
+        dot(x + 1 + 400, y + 1 + 440, color);
+      }
+    }
+  }
+  squareTrans1();
 
-  // * 如果做出上一题后，尝试将其每个点的坐标乘以一个矩阵（如(2,0,0,2)或(1,0.27得到新的位置，即绘制出被线性变换后的色彩空间某一面
-  //   可以考虑如下几种矩阵：
-  //      2 0
-  //      0 2
-  //      ------
-  //      1  0.27
-  //      0  1
-  //      ------
-  //      0.5    0.87
-  //      -0.87  0.5
+  //            1  0.27
+  //            0  1
+  //            ------
+  function squareTrans2() {
+    for (let g = 0; g < 256; g++) {
+      for (let b = 0; b < 256; b++) {
+        let color = 'rgb(' + 255 + ',' + g + ',' + b + ')';
+        let x = g;
+        let y = g * .27 + b;
+        dot(x + 10, y + 600, color);
+      }
+    }
+  }
+  squareTrans2();
 
-  // https://gautamnagrawal.medium.com/rotating-image-by-any-angle-shear-transformation-using-only-numpy-d28d16eb5076
-  // 第一次倾斜变换
-  // 第二次倾斜变换
-  // 第三次倾斜变换
-  // 画一个二阶贝塞尔曲线（即控制点一共三个）
+  //            0.5    0.87
+  //            -0.87  0.5
+  function squareTrans3() {
+    for (let g = 0; g < 256; g++) {
+      for (let b = 0; b < 256; b++) {
+        let color = 'rgb(' + 0 + ',' + g + ',' + b + ')';
+        let x = 0.5 * g - 0.87 * b;
+        let y = 0.87 * g + 0.5 * b;
+        dot(x + 500, y + 100, color);
+      }
+    }
+  }
+  squareTrans3();
+
+  //100像素的实心圆； 
+  function solidCircle(x1, y1, r, color) {
+    let left = x1 - r;
+    let right = x1 + r;
+    let top = y1 + r;
+    let bottom = y1 - r;
+    for (let i = left; i <= right; i++) {
+      for (let j = bottom; j <= top; j++) {
+        if (((i - x1) * (i - x1)) + ((j - y1) * (j - y1)) <= (r * r)) {
+          dot(i, j, color);
+        }
+      }
+    }
+  }
+  solidCircle(730, 240, 100, 'tan');
+
+  //贝塞尔曲线；(三个控制点) 
+  function bezierCurve(x1, y1, x2, y2, x3, y3, color) {
+    for (let p = 0; p <= 1; p += 0.001) {
+      let ax = x1 * (1 - p) + x2 * p;
+      let ay = y1 * (1 - p) + y2 * p;
+      let bx = x2 * (1 - p) + x3 * p;
+      let by = y2 * (1 - p) + y3 * p;
+
+      let cx = ax * (1 - p) + bx * p;
+      let cy = ay * (1 - p) + by * p;
+      dot(cx, cy, color);
+    }
+  }
+  bezierCurve(500, 40, 600, 200, 800, 100, 'red');
 </script>
 
 </html>
