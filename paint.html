@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>画图</title>
+  <style>
+    canvas {
+      border: 2px solid #f0f;
+      display: block;
+      margin: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas width="1000" height="1000"></canvas>
+</body>
+<script>
+  var canvas = document.querySelector('canvas')
+  canvas.style.imageRendering = 'pixelated' //放大时的插帧方式：不插帧，直接放大像素
+  var ctx = canvas.getContext('2d')
+
+  function dot(x, y, color = 'black') {
+    x = Math.round(x)
+    y = Math.round(y)
+    ctx.fillStyle = color
+    ctx.fillRect(x, y, 1, 1)
+  }
+  /**
+   * 你的任务：通过调用dot函数，实现：
+   * 需要注意，dot函数不能接收浮点数，如果参数为浮点数，会被转换为整数后绘制
+      * 在 坐标 (42, 42) 画出一个点
+      
+      * 画一条水平实线，粗细为一个像素
+      * 画一条垂直实线，粗细为一个像素
+      * 画一条一个实点一个空点的虚线
+      * 画一条两个实点两个空点的虚线
+      * 画一条三个实点两个空点的虚线
+      * 画一条45度的斜线
+      * 画一条30度的斜线（与x轴的夹角呈30度）
+      * 画一条60度的斜线（与x轴的夹角呈60度）
+      * 画一条跨越画布左上角和右下角的对角线
+      * 画一个空心矩形
+      * 画一个实心矩形
+      * 画两个空心的圆，圆心在画布中心：
+        * 一个半径为50像素
+        * 一个半径为200像素
+      * 画一个实心的圆，半径至少为100像素
+      * 画一个【大小位置都合适】的sin(x)的图像
+
+      * 画出rgb色彩空间的某一面（尺寸要大于100x100）
+      * 如果做出上一题后，尝试将其每个点的坐标乘以一个矩阵（如(2,0,0,2)或(1,0.27得到新的位置，即绘制出被线性变换后的色彩空间某一面
+        可以考虑如下几种矩阵：
+           2 0
+           0 2
+           ------
+           1  0.27
+           0  1
+           ------
+           0.5    0.87
+           -0.87  0.5
+      * 画一个二阶贝塞尔曲线（即控制点一共三个）
+
+      var bezierCurve = function(x1,y1,x2,y2,x3,y3) {
+
+
+      }
+
+   */
+</script>
+<script>
+  // 不可更改上面的代码
+  // 你的代码写在这里
+
+  // * 在 坐标 (42, 42) 画出一个点for 
+  dot(42, 42, 'red');
+  // * 画一条水平实线，粗细为一个像素
+  function horizontalLine(x1, y, x2, y, color) {
+    for (let i = x1; i < x2; i++) {
+      dot(i, y, color);
+    }
+  }
+  horizontalLine(10, 30, 300, 30, 'green');
+  // * 画一条垂直实线，粗细为一个像素
+  function verticalLine(x, y1, x, y2, color) {
+    for (let i = y1; i < y2; i++) {
+      dot(x, i, color);
+    }
+  }
+  verticalLine(10, 50, 10, 400, 'blue');
+  // * 画一条一个实点一个空点的虚线
+  function dottedLine1(x1, y, x2, y, color) {
+    for (let i = x1; i < x2; i++) {
+      if (i % 2 === 0) {
+        dot(i, y, color);
+      }
+    }
+  }
+  dottedLine1(100, 100, 600, 100, 'perple');
+  // * 画一条两个实点两个空点的虚线
+  function dashedLine1(x1, y, x2, y, color) {
+    for (let i = x1; i < x2; i++) {
+      if (i % 4 < 2) {
+        dot(i, y, color);
+      }
+    }
+  }
+  dashedLine1(50, 50, 500, 50, '#fb7000')
+  // * 画一条三个实点两个空点的虚线
+  function dashedLine2(x, y1, x, y2, color) {
+    for (let i = y1; i < y2; i++) {
+      if (i % 5 < 3) {
+        dot(x, i, color);
+      }
+    }
+  }
+  dashedLine2(100, 100, 100, 600, '#0049b7');
+  // * 画一条45度的斜线
+  function line45(x, color) {
+    for (let i = 0; i < x; i++) {
+      dot(i, i, color);
+    }
+  }
+  line45(300, 'red');
+  // * 画一条30度的斜线（与x轴的夹角呈30度）
+  function line30(x, color) {
+    for (let i = 0; i < x; i++) {
+      let y = i / Math.sqrt(3);
+      dot(i, y, color);
+    }
+  }
+  line30(300, '#00ddff');
+  // * 画一条60度的斜线（与x轴的夹角呈60度）
+  function line60(y, color) {
+    for (let i = 0; i < y; i++) {
+      let x = i / Math.sqrt(3);
+      dot(x, i, color);
+    }
+  }
+  line60(300, '#ff1d58');
+  // * 画一条跨越画布左上角和右下角的对角线
+  // 绘制原点到xy的直线
+  function line1(x1, y1, x2, y2, color) {
+    //第一象限， 终点大于起点， 非原点位置的线段； 
+    //判断斜率， 使用乘法； 
+    let k = (y2 - y1) / (x2 - x1);
+    if (k < 1) {
+      for (let i = x1; i < x2; i++) {
+        let y = k * i;
+        dot(i, y, color);
+      }
+    } else {
+      for (let i = y1; i < y2; i++) {
+        let x = i / k;
+        dot(x, i, color);
+      }
+    }
+  }
+  line1(20, 40, 400, 500, 'tan');
+  line1(20, 30, 300, 200, 'tan');
+
+  //       * 一个半径为50像素
+  //       * 一个半径为200像素
+  //     * 画一个实心的圆，半径至少为100像素
+
+  //   * 画一个【大小位置都合适】的sin(x)的图像
+
+  // * 如果做出上一题后，尝试将其每个点的坐标乘以一个矩阵（如(2,0,0,2)或(1,0.27得到新的位置，即绘制出被线性变换后的色彩空间某一面
+  //   可以考虑如下几种矩阵：
+  //      2 0
+  //      0 2
+  //      ------
+  //      1  0.27
+  //      0  1
+  //      ------
+  //      0.5    0.87
+  //      -0.87  0.5
+
+  // https://gautamnagrawal.medium.com/rotating-image-by-any-angle-shear-transformation-using-only-numpy-d28d16eb5076
+  // 第一次倾斜变换
+  // 第二次倾斜变换
+  // 第三次倾斜变换
+  // 画一个二阶贝塞尔曲线（即控制点一共三个）
+</script>
+
+</html>
