@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>简单函数实现</title>
+</head>
+
+<body>
+  <script>
+    function isCompleteNum(n) {
+      let result = 1;
+      for (let i = 2; i < Math.sqrt(n); i++) {
+        if (n % i === 0) {
+          result = result + i + n / i;
+        }
+      }
+      if (result === n) return true;
+      else return false;
+    }
+    // for (let i = 0; i < 10000; i++) {
+    //   if (isCompleteNum(i)) console.log('完全数' + i);
+    // }
+
+    function isNarcissisticNum(n) {
+      let count = 0;
+      let m = n;
+      let a = n;
+      let result = 0;
+      while (m > 0) {
+        count++;
+        m = (m - m % 10) / 10;
+      }
+      while (a > 0) {
+        let unit = a % 10;
+        let res = power(unit, count);
+        result += res;
+        a = (a - unit) / 10;
+      }
+      if (result === n) return true;
+      else return false;
+    }
+
+    // for (let i = 0; i < 10000; i++) {
+    //   if (isNarcissisticNum(i)) console.log('自恋数: ' + i);
+    // }
+    function power(x, n) {
+      let result = 1;
+      for (let i = 0; i < n; i++) {
+        result *= x;
+      }
+      return result;
+    }
+
+    function palindromicNum(n) {
+      let result = 0;
+      let m = n;
+      while (m > 0) {
+        let unit = m % 10;
+        result = result * 10 + unit;
+        m = (m - unit) / 10;
+      }
+      if (result === n) return true;
+      else return false;
+    }
+    //console.log(palindromicNum(12344321));
+    //console.log(palindromicNum(1234321));
+    //console.log(palindromicNum(123456));
+
+    function isPrime(n) {
+      let maxI = Math.sqrt(n);
+      for (let i = 2; i <= maxI; i++) {
+        if (n % i === 0) return false;
+      }
+      return true;
+    }
+    // for (let i = 2; i < 100; i++) {
+    //   if (isPrime(i)) console.log('一百以内素数: ' + i);
+    // }
+
+    function indexOf(array, target) {
+      for (let i = 0; i < array.length; i++) {
+        if (array[i] === target) return i;
+      }
+    }
+    //console.log(indexOf([1, 2, 3, 4, 6, 7], 6));
+
+    //以下是课堂函数完成记录； 
+    function sliceSelf(array, start, end = array.length) {
+      //模拟剪切函数； 
+      let result = [];
+      for (let i = start; i < end; i++) {
+        result.push(array[i]);
+      }
+      return result;
+    }
+
+    function concatSelf(...arrays) {
+      //拼接多个数组； 
+      let result = [];
+      for (let item of arrays) {
+        for (let it of item) {
+          result.push(it);
+        }
+      }
+      return result;
+    }
+
+    function spliceSelf(array, start = array.length, deleteCount = 0, alternates = '') {
+      //数组的剪切和替换； 
+      let result = [];
+      for (let i = 0; i < start; i++) {
+        result.push(array[i]);
+      }
+      if (alternates === '') {
+        var newStart = start + deleteCount;
+      }
+      for (let i = newStart; i < array.length; i++) {
+        result.push(array[i]);
+      }
+      return result;
+    }
+
+    function range(m, n) {
+      let result = [];
+      for (let i = m; i <= n; i++) {
+        result.push(i);
+      }
+      return result;
+    }
+
+    function sum(arr) {
+      let result = 0;
+      for (let item of arr) {
+        result += item;
+      }
+      return result;
+    }
+    function reverseArr(arr) {
+      //创建新的数组； 
+      let result = [];
+      for (let i = arr.length - 1; i >= 0; i--) {
+        result.push(arr[i]);
+      }
+      return result;
+    }
+    //0 1 2 3 4 
+    //0 1 2 3 4 5 
+    function reverseInplace(arr) {
+      //原地反转数组； 
+      let j = arr.length - 1;
+      let end = arr.length >>> 1;
+      for (let i = 0; i < end; i++) {
+        swap(arr, i, j);
+        j--;
+      }
+      return arr;
+    }
+    function swap(arr, i, j) {
+      let temp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = temp;
+    }
+
+    function isEqual(a, b) {
+      if (typeof a !== null && typeof a === 'object' && typeof b !== null && typeof b === 'object') {
+        let countA = countKeys(a);
+        let countB = countKeys(b);
+        if (countA !== countB) return false;
+        for (let key in a) {
+          if (!isEqual(a[key], b[key])) {
+            return false;
+          }
+        }
+        return true;
+      } else {
+        return a === b;
+      }
+      return true;
+    }
+    function countKeys(obj) {
+      let count = 0;
+      for (let key in obj) {
+        count++;
+      }
+      return count;
+    }
+
+    function deepCopy(a) {
+      if (typeof a !== null && typeof a === 'object') {
+        if (Array.isArray(a)) {
+          let res = [];
+          for (let item of a) {
+            res.push(deepCopy(item));
+          }
+          return res;
+        } else {
+          let result = {};
+          for (let key in a) {
+            result[key] = deepCopy(a[key]);
+          }
+          return result;
+        }
+      } else {
+        return a;
+      }
+    }
+
+
+    function randomArr(n) {
+      let res = [];
+      for (let i = 0; i < n; i++) {
+        res.push(Math.random() * n | 0);
+      }
+      return res;
+    }
+    function isSort(arr) {
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i + 1] < arr[i]) return false;
+      }
+      return true;
+    }
+
+    function swap(arr, i, j) {
+      let temp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = temp;
+    }
+
+    function bubbleSort(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        let swapped = false;
+        for (let j = 0; j < i; j++) {
+          if (arr[j + 1] < arr[j]) {
+            swap(arr, j + 1, j);
+            swapped = true;
+          }
+        }
+        if (swapped === false) break;
+      }
+      return arr;
+    }
+
+    function insertionSort1(arr) {
+      for (let i = 1; i < arr.length; i++) {
+        //从第一个开始选择； 
+        let temp = arr[i];
+        for (var j = i - 1; arr[j] > temp && j > -1; j--) {
+          arr[j + 1] = arr[j];
+        }
+        arr[j + 1] = temp;
+      }
+      return arr;
+    }
+
+    function insertionSort2(arr) {
+      for (let i = 1; i < arr.length; i++) {
+        for (let j = i - 1; j > -1; j--) {
+          if (arr[j] > arr[j + 1]) swap(arr, j, j + 1);
+          else break;
+        }
+      }
+      return arr;
+    }
+
+    function selectionSort(arr) {
+      for (let i = 0; i < arr.length - 1; i++) {
+        let minI = i;
+        for (let j = i + 1; j < arr.length; j++) {
+          if (arr[j] < arr[minI]) {
+            minI = j;
+          }
+        }
+        if (minI !== i) swap(arr, minI, i);
+      }
+      return arr;
+    }
+
+    function mergeSort1(arr) {
+      //Udemy教程， 需要辅助函数； 
+      if (arr.length < 2) return arr.slice();
+      let mid = arr.length >> 1;
+      let leftArr = arr.slice(0, mid);
+      let rightArr = arr.slice(mid);
+      return helpMerge(mergeSort1(leftArr), mergeSort1(rightArr));
+    }
+    function helpMerge(arr1, arr2) {
+      let res = [], i = 0, j = 0;
+      while (i < arr1.length && j < arr2.length) {
+        if (arr1[i] < arr2[j]) {
+          res.push(arr1[i]);
+          i++;
+        } else {
+          res.push(arr2[j]);
+          j++;
+        }
+      }
+      while (i < arr1.length) {
+        res.push(arr1[i]);
+        i++;
+      }
+      while (j < arr2.length) {
+        res.push(arr2[j]);
+        j++;
+      }
+      return res;
+    }
+
+    function mergeSort2(arr) {
+      //课堂教程， 不使用辅助函数； 
+      if (arr.length < 2) return arr;
+      let mid = arr.length >> 1;
+      let leftArr = arr.slice(0, mid);
+      let rightArr = arr.slice(mid);
+      mergeSort2(leftArr);
+      mergeSort2(rightArr);
+
+      let k = 0, i = 0, j = 0;
+      while (i < leftArr.length && j < rightArr.length) {
+        if (leftArr[i] < rightArr[j]) {
+          arr[k++] = leftArr[i++];
+        } else {
+          arr[k++] = rightArr[j++];
+        }
+      }
+      while (i < leftArr.length) arr[k++] = leftArr[i++];
+      while (j < rightArr.length) arr[k++] = rightArr[j++];
+      return arr;
+    }
+
+    function quickSort1(arr, left = 0, right = arr.length - 1) {
+      //Udemy教程， 需要辅助函数； 
+      if (left < right) {
+        let pivotI = getPivot(arr, left, right);
+        quickSort1(arr, left, pivotI - 1);
+        quickSort1(arr, pivotI + 1, right);
+      }
+      return arr;
+    }
+    function getPivot(arr, pivotI = 0, end = arr.length - 1) {
+      let swapI = pivotI;
+      for (let i = pivotI + 1; i <= end; i++) {
+        if (arr[i] < arr[pivotI]) {
+          swapI++;
+          swap(arr, swapI, i);
+        }
+      }
+      swap(arr, swapI, pivotI);
+      return swapI;
+    }
+
+    function quickSort2(arr, left = 0, right = arr.length - 1) {
+      //非原地快速排序； 
+
+    }
+  </script>
+
+</body>
+
+</html>
