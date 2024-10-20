@@ -149,3 +149,99 @@ class LinkedList {
     return this.toArray().join(''); 
   }
 }
+
+class MyMap {
+  constructor(key, val) {
+    this._pairs = [key, val];
+  }
+  set(key, val) {
+    let setted = false; 
+    for (let i = 0; i < this._pairs.length; i += 2) {
+      if (this._pairs[i] === key) {
+        this._pairs[i + 1] = val; 
+        setted = true; 
+      }
+    }
+    if (setted === false) this._pairs.push(key, val); 
+    return this._pairs;
+  }
+  get(key) {
+    for (let i = 0; i < this._pairs.length; i += 2) {
+      if (this._pairs[i] === key) return this._pairs[i + 1]; 
+    }
+    return undefined; 
+  }
+  get size() {
+    return this._pairs.length / 2; 
+  }
+  has(key) {
+    for (let i = 0; i < this._pairs.length; i += 2) {
+      if (this._pairs[i] === key) return true;
+    }
+    return false; 
+  }
+  clear() {
+    return []; 
+  }
+  delete(key) {
+    for (let i = 0; i < this._pairs.length; i += 2) {
+      if (this._pairs[i] === key) {
+        this._pairs.splice(i, 2); 
+      } 
+    }
+  }
+  forEach(func) {
+    for (let i = 1; i < this._pairs.length; i += 2) func(this._pairs[i]);
+  }
+}
+
+class MySet {
+  constructor() {
+    this.set = [];
+  }
+  add(val) {
+    for (item of this.set) {
+      if (item === val) {
+        return this.set; 
+      }
+    }
+    this.set.push(val); 
+    return this.set; 
+  }
+  get size() {
+    return this.set.length; 
+  }
+  delete(val) {
+    for (let i = 0; i < this.set.length; i++) {
+      if (this.set[i] === val) {
+        this.set.slice(i, i + 1); 
+        return true; 
+      }
+    }
+    return false; 
+  }
+  has(val) {
+    for (let i = 1; i < this.set.length; i++) {
+      if (this.set[i] === val) return true; 
+    }
+    return false; 
+  }
+}
+
+function Stack() {
+  this.map = [];
+}
+Stack.prototype.push = function (val) {
+  this.map.push(val); 
+  return this; 
+}
+
+Stack.prototype.pop = function (val) {
+  return this.map.pop()
+}
+Stack.prototype.peek = function (val) {
+  return this.map[this.map.length - 1];
+}
+Stack.prototype.size = function () {
+  return this.map.length; 
+}
