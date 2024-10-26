@@ -172,19 +172,135 @@ var lichanghui11 = function () {
 
   function flattenDepth(arr, depth = 1) {
     let res = [];
-    while (depth > 0) {
+    function helper(arr, depth) {
       for (let item of arr) {
-        
-      } 
+        if (typeof item === 'object' && depth > 0) {
+          helper(item, depth - 1);
+        } else {
+          res.push(item);
+        }
+      }
+    }
+    helper(arr, depth);
+    return res;
+  }
+
+  function fromPairs(pairs) {
+    let dict = {};
+    for (let item of pairs) {
+      dict[item[0]] = item[1];
+    }
+    return dict;
+  }
+
+  function toPairs(object) {
+    let res = [];
+    let i = 0; 
+    for (let key in object) {
+      if (object.hasOwnProperty(key)) {
+        res[i] = [key];
+        res[i].push(object[key]);
+        i++;
+      }
+    }
+    return res;
+  }
+
+  function head(arr) {
+    if (!arr.length) return undefined;
+    return arr[0];
+  }
+
+  function indexOf(arr, value, fromIndex = 0) {
+    for (let i = fromIndex; i < arr.length; i++) {
+      if (arr[i] === value) return i;
+    }
+    return -1;
+  }
+
+  function lastIndexOf(arr, value, fromIndex = arr.length - 1) {
+    for (let i = fromIndex; i > -1; i--) {
+      if (arr[i] === value) return i; 
+    }
+    return -1;
+  }
+
+  function initial(arr) {
+    return arr.slice(0, arr.length - 1);
+  }
+
+  function join(arr, separator = ',') {
+    let res = ''; 
+    for (let item of arr) {
+      res += item + separator;
+    }
+    return res.slice(0, res.length - 1);
+  }
+
+  function last(arr) {
+    return arr[arr.length - 1];
+  }
+
+  function pull(arr, ...values) {
+    for (let item of [...values]) {
+      let i = arr.indexOf(item);
+      while (i > -1) {
+        arr.splice(i, 1);
+        i = arr.indexOf(item);
+      }
+    }
+    return arr;
+  }
+
+  function reverse(arr) {
+    let mid = (arr.length >>> 1);
+    let end = arr.length - 1;
+    for (let i = 0; i < mid; i++) {
+      [arr[i], arr[end]] = [arr[end], arr[i]];
+      end--;
+    }
+    return arr;
+  }
+
+  function every(collection, predicate) {
+    if (Array.isArray(predicate)) {
+      let key = predicate[0], val = predicate[1];
+      for (let item of collection) {
+        if (item[key] !== val) return false; 
+      }
+      return true;
+    } else if (typeof predicate === 'object') {
+      for (let item of collection) {
+        if (!_isEqual(item, predicate)) return false;
+      }
+      return true;
+    } else {
+      for (let item of collection) {
+        if (typeof item === 'object') {
+          if (!item[predicate]) return false;
+        } else {
+          if (typeof item !== 'boolean') return false;
+        }
+      }
+      return true;
     }
   }
 
 
 
-
-
-
   return {
+    every: every,
+    reverse: reverse,
+    pull: pull,
+    last: last,
+    join: join,
+    initial: initial,
+    lastIndexOf: lastIndexOf,
+    indexOf: indexOf,
+    head: head,
+    toPairs: toPairs,
+    fromPairs: fromPairs,
+    flattenDepth: flattenDepth,
     compact: compact,
     chunk: chunk,
     fill: fill,
