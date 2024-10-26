@@ -245,3 +245,30 @@ Stack.prototype.peek = function (val) {
 Stack.prototype.size = function () {
   return this.map.length; 
 }
+
+class Queue {
+  constructor() {
+    this.head = null; 
+    this.tail = null;
+    this.length = 0; 
+  }
+  add(val) {
+    this.length++;
+    if (this.head === null) {
+      this.head = this.tail = new ListNode(val); 
+      return this.head; 
+    }
+    this.tail.next = new ListNode(val); 
+    this.tail = this.tail.next; 
+    return this.head;
+  }
+  pop() {
+    let temp = this.head.val; 
+    this.head = this.head.next; 
+    this.length--;
+    return temp;
+  }
+  get size() {
+    return this.length;
+  }
+}

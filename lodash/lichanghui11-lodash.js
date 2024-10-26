@@ -1,293 +1,199 @@
-var lichanghui11 = {
-  chunk(array, size = 1) {
-    var results = [];
-    var res = [];
-    for (var i = 0; i < array.length; i++) {
-      res.push(array[i]);
-      if (res.length === size) {
-        results.push(res);
-        res = [];
-      }
-    }
-    if (res.length) results.push(res);
-    return results;
-  },
-
-  compact(array) {
-    var res = [];
-    for (var item of array) {
-      if (item) {
-        res.push(item);
-      }
-
-    }
-    return res;
-  },
-
-  concat(array, ...arguments) {
-    for (var i = 0; i < arguments.length; i++) {
-      if (Array.isArray(arguments[i])) {
-        array.push(...arguments[i]);
-      } else {
-        array.push(arguments[i]);
-      }
-    }
-    return array;
-  },
-
-  fill(array, value, start = 0, end = array.length) {
-    for (let i = start; i < end; i++) {
-      array[i] = value;
-    }
-    return array;
-  },
-
-  drop(array, num = 1) {
-    for (let i = 0; i < num; i++) {
-      if (array) array.shift();
-    }
-    return array;
-  },
-
-  /*
-passed: compact,chunk,fill,drop,flatten,flattenDeep,fromPairs, toPairs
-head indexOf ,map lastIndexOf initial join last ,pull,reverse keyBy,forEach,
-
-wrong answer: findIndex,findLastIndex,flattenDepth countBy
-
-
-,,,,,,,,every,some
-,groupBy,filter,reduce,reduceRight,size,sortBy,sample,
-isUndefined,isNull,isNil,max,min,maxBy,minBy,round,sumBy
-flagMap,flatMapDepth,get,has,mapKeys,mapValues
-range,stringifyJSON,concat,isEqual,repeat,padStart,padEnd,pad,keys,values,random,
-round,ceil,floor,cloneDeep
-trim,trimStart,trimEnd,assign,merge,
-
-  */
+/*
+  以下为书写建议： 
+  function chunc1(){
   
-  
-
-
-  map(collection, iteratee) {
-    let res = [];
-    if (Array.isArray(collection)) {
-     if (typeof iteratee == 'function') {
-        for (let i = 0; i < collection.length; i++) {
-          let temp = iteratee(collection[i], i, collection);
-          res.push(temp);
-        }
-      } else {
-        for (let item of collection) {
-          for (let it in item) {
-            res.push(item[it]);
-          }
-        }
-      }
-   } else if (typeof collection === 'object') {
-      for (let item in collection) {
-        let temp = iteratee(collection[item])
-        res.push(temp);
-      }
-    }
-    return res;
-  }, 
-
-  forEach(collection, iteratee) {
-    if (Array.isArray(collection)) {
-      for (let i = 0; i < collection.length; i++) {
-        iteratee(collection[i], i, collection);
-      }
-    } else {
-      for (let item in collection) {
-        iteratee(collection[item], item);
-      }
-    }
-  },
-
-  keyBy(collection, iteratee) {
-    let res = {};
-    if (typeof iteratee === 'function') {
-      for (let item of collection) {
-        let temp = iteratee(item);
-          res[temp] = item;
-      }
-      return res;
-    } else {
-      for (let item of collection) {
-        let temp = item[iteratee];
-        res[temp] = item;  
-      } 
-      return res;
-    }
-  }, 
-
-
-  
-
- /*
- JavaScript: Check if an Object Has a Property Methods
-    In operator
-    Object.prototype.hasOwnProperty() method
-    Object.hasOwn() method
-    Check for undefined value
-    Object.keys() and Array.prototype.some method
-    Custom JavaScript util function.
+  }
+  return {
+    chunc: chunc1, 
+  }
 */
 
-  reverse(array) {
+var lichanghui11 = function () {
+  function compact(arr) {
     let res = [];
-    for (let i = array.length - 1; i >= 0; i--) {
-      res.push(array[i]);
+    for (let item of arr) {
+      if (item) res.push(item);
     }
     return res;
-  }, 
+  }
 
-  pull(array, ...values) {
+  function chunk(arr, size = 1) {
     let res = [];
-    
-    for (let i = 0; i < array.length; i++) {
-      let isSame = false;
-      for (let item of values) {
-        if (array[i] === item) {
-          isSame = true;
-          break;
+    let k = 0;
+    let i = 0
+    while (i < arr.length) {
+      let temp = size;
+      while (temp > 0) {
+        if (!res[k]) {
+          if (i > arr.length - 1) break;
+          else res[k] = [arr[i]];
+        } else {
+          if (i > arr.length - 1) break;
+          else res[k].push(arr[i]);
         }
+        temp--;
+        i++;
       }
-      if (isSame === false) res.push(array[i]);
+      k++;
     }
     return res;
-  },
+  }
 
-  last(array) {
-    return array[array.length - 1];
-  },
-
-  join(array, separator = ',') {
-    let res = '';
-    for (let item of array) {
-      res = res + item + separator;
+  function fill(arr, val, start = 0, end = arr.length) {
+    for (let i = start; i < end; i++) {
+      arr[i] = val;
     }
-    return res.slice(0, res.length - 1);
-  }, 
+    return arr;
+  }
 
-  initial(array) {
-    return array.slice(0, array.length - 1);
-  },
-
-  lastIndexOf(array, value, fromIndex = array.length - 1) {
-    for (let i = fromIndex; i > 0; i--) {
-      if (array[i] === value) {
-        return i;
-      }
-    }
-    return -1;
-  },
-
- 
-
-  flatten(array) {
+  function drop(arr, n = 1) {
     let res = [];
-    for (let item of array) {
+    for (let i = n; i < arr.length; i++) {
+      res.push(arr[i]);
+    }
+    return res;
+  }
+
+  function findIndex(arr, func, fromIndex = 0) {
+    if (typeof func === 'function') {
+      for (let i = fromIndex; i < arr.length; i++) {
+        if (func(arr[i])) return i;
+      }
+      return -1;
+    } else if (Array.isArray(func)) {
+      let key = func[0], val = func[1];
+      for (let i = fromIndex; i < arr.length; i++) {
+        if (arr[i][key] === val) return i;
+      }
+      return -1;
+    } else if (typeof func === 'object') {
+      for (let i = fromIndex; i < arr.length; i++) {
+        if (_isEqual(arr[i], func)) return i;
+      }
+      return -1;
+    } else {
+      for (let i = fromIndex; i < arr.length; i++) {
+        if (arr[i][func]) return i;
+      }
+      return -1;
+    }
+  }
+  function _isEqual(obj1, obj2) {
+    for (let key in obj1) {
+      if (obj1[key] !== obj2[key]) return false;
+    }
+    for (let key in obj2) {
+      if (obj2[key] !== obj1[key]) return false;
+    }
+    return true;
+  }
+
+
+  function findLastIndex(arr, predicate, fromIndex = arr.length - 1) {
+    if (typeof predicate === 'function') {
+      for (let i = fromIndex; i > -1; i--) {
+        if (predicate(arr[i])) return i;
+      }
+      return -1;
+    } else if (Array.isArray(predicate)) {
+      let key = predicate[0], val = predicate[1];
+      for (let i = fromIndex; i > -1; i--) {
+        if (arr[i][key] === val) return i;
+      }
+      return -1;
+    } else if (typeof predicate === 'object') {
+      for (let i = fromIndex; i > -1; i--) {
+        if (_isEqual(arr[i], predicate)) return i;
+      }
+      return -1;
+    } else {
+      for (let i = fromIndex; i > -1; i--) {
+        if (arr[i][predicate]) return i;
+      }
+      return -1;
+    }
+  }
+
+  function flatten(arr) {
+    let res = [];
+    for (let item of arr) {
       if (Array.isArray(item)) {
-        for (let it of item) {
-          res.push(it);
-        }
+        res.push(...item);
       } else {
         res.push(item);
       }
     }
     return res;
-  },
+  }
 
-  flattenDeep: function flattenDeep(array) {
+  function flattenDeep(arr) {
     let res = [];
-    for (let item of array) {
+    for (let item of arr) {
       if (Array.isArray(item)) {
-        for (let it of flattenDeep(item)) {
-          res.push(it);
-        }
+        res.push(...flattenDeep(item));
       } else {
         res.push(item);
       }
     }
     return res;
-  },
+  }
 
-  
-
-  fromPairs(pairs) {
-    let obj = {}; 
-    for (let i = 0; i < pairs.length; i++) {
-      if (Array.isArray(pairs[i])) {
-        for (let j = 0; j < pairs[i].length; j += 2) {
-          let key = pairs[i][j];
-          let val = pairs[i][j + 1];
-          obj[key] = val;
-        }
+  function reduce(collection, iteratee, accumulator) {
+    if (Array.isArray(collection)) {
+      if (accumulator == undefined) initial = arr[0];
+      else initial = accumulator;
+      for (let i = 0; i < collection.length; i++) {
+        initial = iteratee(initial, collection[i], i, collection);
       }
+      return initial;
+    } else {
+      let initial = accumulator || {};
+      for (let key in collection) {
+        iteratee(initial, collection[key], key);
+      }
+      return initial;
     }
-    return obj;
-  },
+  }
 
-  toPairs(object) {
+  function concat(arr, ...values) {
     let res = [];
-    for (let item in object) {
-      let ans = [];
-      let val = object[item];
-      let key = item.toString();
-      ans.push(key);
-      ans.push(val);
-      res.push(ans);
+    for (let item of arr) {
+      res.push(item);
+    }
+    for (let item of values) {
+      if (Array.isArray(item)) {
+        res.push(...item);
+      } else {
+        res.push(item);
+      }
     }
     return res;
-  },
+  }
 
-  head(array) {
-    if (!array) return undefined;
-    return array[0];
-  },
-
-  indexOf(array, value, fromIndex = 0) {
-    for (let i = fromIndex; i < array.length; i++) {
-      if (array[i] === value) {
-        return i;
-      }
-    }
-    return -1;
-  },
-
-
-  
-
-}
-
-class MySet1 {
-  constructor(array) {
-    this._set = [];
-    for (var item of array) {
-      if (!this._set.includes(item)) this._set.push(item);
+  function flattenDepth(arr, depth = 1) {
+    let res = [];
+    while (depth > 0) {
+      for (let item of arr) {
+        
+      } 
     }
   }
 
-  has(val) {
-    for (var item of this._set) {
-      if (item === val) return true;
-    }
-    return false;
-  }
-}
-function isArrayMatch(arr, array) {
-  let i = 0;
-  let j = 0;
-  for (let key of arr) {
 
-    if (key === array[i] && key.val === array[i + 1]) {
-      return j;
-    }
-    j++;
-    i += 2;
-  }
-  return -1;
-}
 
+
+
+
+  return {
+    compact: compact,
+    chunk: chunk,
+    fill: fill,
+    drop: drop,
+    findIndex: findIndex,
+    findLastIndex: findLastIndex,
+    flatten: flatten,
+    flattenDeep: flattenDeep,
+    reduce: reduce,
+    concat: concat,
+  }
+}()

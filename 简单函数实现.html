@@ -350,6 +350,114 @@
       return swapI;
     }
 
+    class TreeNode {
+      constructor(val, left = null, right = null) {
+        this.val = val;
+        this.left = left; 
+        this.right = right;
+      }
+    }
+    
+    function arrayToTree(array, i = 0) {
+      if (array[i] == null || i > array.length - 1) return null;
+      let head = new TreeNode(array[i]);
+      head.left = arrayToTree(array, 2 * i + 1);
+      head.right = arrayToTree(array, 2 * i + 2);
+      return head; 
+    }
+
+    function treeToArray(tree, i = 0, res = []) {
+      if (tree) {
+        res[i] = tree.val;
+        treeToArray(tree.left, 2 * i + 1, res);
+        treeToArray(tree.right, 2 * i + 2, res);
+      } 
+      return res;
+    }
+
+    //[1, null, 3, 5]
+    function condenceArrToTree(arr) {
+      if (arr.length === 0) return null;
+      let temp = new TreeNode(arr[0]);
+      let roots = [temp];
+      for (let i = 1; i < arr.length; i++) {
+        let currNode = roots.shift();
+        if (arr[i] == null) {
+          currNode.left = null;
+        } else {
+          let left = new TreeNode(arr[i]);
+          currNode.left = left;
+          roots.push(left);
+        }
+        i++;
+        if (arr[i] == null) {
+          currNode.right = null;
+        } else {
+          let right = new TreeNode(arr[i]);
+          currNode.right = right;
+          roots.push(right);
+        }
+      }
+      return temp;
+    }
+
+    function treeTocondenceArr(root, res = []) {
+      if (!root) return res;
+      let roots = [root];
+      res.push(root.val);
+      while (roots.length) {
+        let currNode = roots.shift();
+        if (currNode.left) {
+          res.push(currNode.left.val);
+          roots.push(currNode.left);
+        } else {
+          res.push(null);
+        }
+        if (currNode.right) {
+          res.push(currNode.right.val);
+          roots.push(currNode.right);
+        } else {
+          res.push(null);
+        }
+      }
+      return res;
+    }
+
+    function describe(description, depth = 0, func) {
+      console.log(' '.repeat(depth) + description);
+      func();
+    }
+  
+    describe('aaa', 0, () => {
+      describe('bbb', 2, () => {})
+      describe('bbb', 2, () => {
+        describe('ccc', 4, () => {})
+        describe('ccc', 4, () => {})
+      })
+      describe('bbb', 2, () => {})
+    })
+
+
+
+    function retry() {
+      for (;;) {
+        try {
+          if (Math.random() > 0.8) {
+            console.log('Well Done')
+            break;
+          }
+          else {
+            new Error('wrong!!!!');
+          }
+        } catch(e) {
+          throw e;
+          continue;
+        }
+      }
+    }
+
+
+
     
   </script>
 
