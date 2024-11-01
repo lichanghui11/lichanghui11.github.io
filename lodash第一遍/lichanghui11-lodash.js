@@ -290,4 +290,3 @@ function isArrayMatch(arr, array) {
   }
   return -1;
 }
-
