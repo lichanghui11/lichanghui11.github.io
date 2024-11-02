@@ -612,8 +612,12 @@ var lichanghui11 = function () {
   function get(object, path, defaultValue) {
     if (!Array.isArray(path)) var temp = path.split('')
   }
+
+  function has(object, path) {
+    
+  }
   return {
-    get: get,``
+    get: get,
     flatMapDepth: flatMapDepth,
     flatMap: flatMap,
     sumBy: sumBy,
