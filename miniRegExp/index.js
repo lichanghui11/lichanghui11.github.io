@@ -54,7 +54,6 @@ button.addEventListener('click', function run() {
   let lastLastIndex = 0;
   var matchIndex = 0; 
   while (match = re.exec(testString, flag)) {
-    debugger;
     html += testString.slice(lastLastIndex, match.index);
     html += hightLightMatch(match, matchIndex);
     lastLastIndex = re.lastIndex;

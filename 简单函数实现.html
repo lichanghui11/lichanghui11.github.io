@@ -2,12 +2,27 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
+  <meta string[i]set="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>简单函数实现</title>
+  <style>
+    img {
+      position: absolute;
+      width: 40px;
+    }
+  </style>
 </head>
 
 <body>
+  <ul>
+    <li>one1</li>
+    <li>two</li>
+    <li>three</li>
+    <li>four</li>
+  </ul>
+  <span class="one"></span>
+  <span class="two"></span>
+  <img src="对像素点的理解_副本.png" alt="">
   <script>
     function isCompleteNum(n) {
       let result = 1;
@@ -353,17 +368,17 @@
     class TreeNode {
       constructor(val, left = null, right = null) {
         this.val = val;
-        this.left = left; 
+        this.left = left;
         this.right = right;
       }
     }
-    
+
     function arrayToTree(array, i = 0) {
       if (array[i] == null || i > array.length - 1) return null;
       let head = new TreeNode(array[i]);
       head.left = arrayToTree(array, 2 * i + 1);
       head.right = arrayToTree(array, 2 * i + 2);
-      return head; 
+      return head;
     }
 
     function treeToArray(tree, i = 0, res = []) {
@@ -371,7 +386,7 @@
         res[i] = tree.val;
         treeToArray(tree.left, 2 * i + 1, res);
         treeToArray(tree.right, 2 * i + 2, res);
-      } 
+      }
       return res;
     }
 
@@ -427,20 +442,20 @@
       console.log(' '.repeat(depth) + description);
       func();
     }
-  
+
     describe('aaa', 0, () => {
-      describe('bbb', 2, () => {})
+      describe('bbb', 2, () => { })
       describe('bbb', 2, () => {
-        describe('ccc', 4, () => {})
-        describe('ccc', 4, () => {})
+        describe('ccc', 4, () => { })
+        describe('ccc', 4, () => { })
       })
-      describe('bbb', 2, () => {})
+      describe('bbb', 2, () => { })
     })
 
 
 
     function retry() {
-      for (;;) {
+      for (; ;) {
         try {
           if (Math.random() > 0.8) {
             console.log('Well Done')
@@ -449,17 +464,295 @@
           else {
             new Error('wrong!!!!');
           }
-        } catch(e) {
+        } catch (e) {
           throw e;
           continue;
         }
       }
     }
+    function raw(literals, ...args) {
+      let res = [];
+      for (var i = 0; i < args.length; i++) {
+        res.push(literals.raw[i], args[i]);
+      }
+      res.push(literals.raw[i]);
+      return res.join('');
+    }
+
+    //以下模拟的正则和字符串的方法默认自带d和g标志； 
+    RegExp.prototype.myTest = function (str) {
+      if (this.exec(str)) return true;
+      else return false;
+    }
+
+    String.prototype.mySearch = function (value) {
+      if (typeof value === 'object') {
+        if (this.match(value)) return this.match(value).index;
+        else return -1;
+      } else {
+        return this.search(value);
+      }
+    }
+
+    String.prototype.mySplit = function (re) {
+      let res = [];
+      let match;
+      let lastLastIndex = 0
+      while (match = re.exec(this)) {
+        let i = 0;
+        res.push(this.slice(lastLastIndex, match.indices[i][0]))
+        while (match[i + 1]) {
+          res.push(match[i + 1]);
+          i++;
+        }
+        lastLastIndex = re.lastIndex;
+      }
+      res.push(this.slice(lastLastIndex));
+      return res;
+    }
+
+    String.prototype.myMatch = function (re) {
+      let res = [];
+      let match;
+      while (match = re.exec(this)) {
+        res.push(match[0]);
+      }
+      return res;
+    }
+
+    String.prototype.myReplace = function (re, func) {
+      let res = [];
+      let match;
+      let lastLastIndex = 0;
+      while (match = re.exec(this)) {
+        res.push(this.slice(lastLastIndex, match.indices[0][0]));
+        res.push(func(match[0]));
+        lastLastIndex = re.lastIndex;
+      }
+      res.push(this.slice(lastLastIndex));
+      return res.join('');
+    }
 
 
+    //JSON解析： 
+    function JSONParse(string) {
+      let i = 0;
+      return parseValue();
 
-    
+      function parseObject() {
+        i++;
+        let res = {};
+        let key = '';
+        let value;
+        if (string[i] === '}') {
+          i++;
+          return res;
+        }
+        while (i < string.length) {
+          key = parseString();
+          i++;
+          value = parseValue();
+          res[key] = value;
+          if (string[i] === '}') {
+            i++; //skip the close curly bracket}
+            break;
+          }
+          i++; //skip the comma,
+        }
+        return res;
+      }
+
+      function parseArray() {
+        i++; //skip the open bracket
+        let res = [];
+        if (string[i] === ']') {
+          i++; //skip the close bracket
+          return res;
+        }
+        while (i < string.length) {
+          let value = parseValue();
+          res.push(value);
+          if (string[i] === ']') {
+            i++;//skip the close bracket
+            break;
+          }
+          i++;//skip the comma,
+        }
+        return res;
+      }
+
+      function parseString() {
+        i++; //skip the double open double qoute
+        let currI = i;
+        while (string[i] !== '"') i++;
+
+        let value = string.slice(currI, i);
+        i++;//skip the close double qoute
+        return value;
+      }
+
+      function parseNumber() {
+        let currI = i;
+        while (string[i] >= '0' && string[i] <= '9') i++;
+        return Number(string.slice(currI, i));
+      }
+
+      function parseValue() {
+        if (string[i] === 't') {
+          i += 4;
+          return true;
+        } else if (string[i] === 'f') {
+          i += 5;
+          return false;
+        } else if (string[i] === '{') {
+          return parseObject();
+        } else if (string[i] === '[') {
+          return parseArray();
+        } else if (string[i] === 'n') {
+          i += 4;
+          return null;
+        } else if (string[i] === '"') {
+          return parseString();
+        } else {
+          return parseNumber();
+        }
+      }
+    }
+
+    //JS解析：
+
+
+    function getByTag1(node, tag) {
+      let res = [];
+      tag = tag.toUpperCase();
+      if (node.nodeType === document.ELEMENT_NODE) {
+        for (let item of node.children) {
+          if (item.tagName === tag) {
+            res.push(item);
+          }
+          res.push(...getByTag1(item, tag));
+        }
+      }
+      return res;
+    }
+
+    function getByTag2(node, tag) {
+      let res = [];
+      tag = tag.toUpperCase();
+      traverse1(node, item => {
+        if (item.tagName === tag) {
+          res.push(item);
+        }
+      })
+      return res;
+    }
+
+    function traverse1(node, func) {
+      if (node.nodeType === document.ELEMENT_NODE) {
+        for (let item of node.children) {
+          func(item)
+          traverse1(item, func);
+        }
+      }
+      return
+    }
+
+
+    function getById1(id, node = document.body) {
+      let res = null;
+      traverse2(node, item => {
+        if (item.id === id) {
+          res = item;
+          return false;
+        }
+      })
+      return res;
+    }
+
+    function traverse2(node, func) {
+      if (node.nodeType === document.ELEMENT_NODE) {
+        if (func(node) === false) return false;
+        for (let item of node.children) {
+          if (traverse2(item, func) === false) return false;
+        }
+      }
+    }
+
+    function elt(tagName, ...args) {
+      //利用tagName创建新的标签， 将args放进标签， 创建一个dom树
+      let node =  document.createElement(tagName);
+      for (let item of args) {
+        if (item.nodeType === document.ELEMENT_NODE) {
+          node.append(item);
+        } else {
+          let temp = document.createTextNode(item);
+          node.append(temp);
+        }
+      }
+      return node;
+    }
+
+
+    function time(name, func) {
+      let start = Date.now();
+      func();
+      let during = Date.now() - start;
+      return name + '  spend  '  + during + ' ms';
+    }
+
+    function slow() {
+      let span = document.querySelector('.one');
+      while (span.offsetWidth < 2000) {
+        //2000px
+        let t = document.createTextNode('X');
+        span.append(t);
+      }
+    }
+    function quick() {
+      let span = document.querySelector('.two');
+      let target = document.createTextNode('XXXXX');
+      span.append(target);
+      let len = Math.ceil(2000 / (span.offsetWidth / 5));
+      
+      for (let i = 5; i < len; i++) {
+        span.append(document.createTextNode('X'));
+      }
+    }
+
+    let angle = 0, lastTime = null; 
+
+    function animation(time) {
+      let img = document.querySelector('img');
+      if (lastTime === null) lastTime = time; 
+      angle = (time - lastTime) * 0.001;
+
+      // angle += 0.01;
+      
+      // angle = Date.now() * 0.001;
+      img.style.top = Math.sin(angle) * 100 + 200 + 'px';
+      img.style.left = Math.cos(angle) * 100 + 200 + 'px';
+
+      requestAnimationFrame(animation);
+    }
+    requestAnimationFrame(animation);
+
+    // let lists = document.querySelectorAll('li');
+    // for (let i = 0; i < lists.length; i++) {
+    //   let li = lists[i]; 
+    //   li.addEventListener('click', () => {
+    //     console.log(i);
+    //   })
+    // }
+
+    let ul = document.querySelector('ul');
+    ul.addEventListener('click', e => {
+      if (e.target.matches('li')) {
+        let i = [...ul.children].indexOf(e.target);
+        console.log(i);
+      }
+    })
   </script>
+
 
 </body>
 

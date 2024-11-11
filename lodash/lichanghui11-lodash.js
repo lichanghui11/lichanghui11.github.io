@@ -560,15 +560,15 @@ var lichanghui11 = function () {
 
 
   function sumBy(arr, iteratee) {
-    let key = ''; 
+    let key = '';
     for (let item of arr) {
       key = Object.keys(item)[0];
       break;
     }
-    let res = 0; 
+    let res = 0;
     if (typeof iteratee === 'function') {
       for (let item of arr) {
-        res += iteratee(item);  
+        res += iteratee(item);
       }
     } else {
       for (let item of arr) {
@@ -586,7 +586,7 @@ var lichanghui11 = function () {
   }
 
   function flatMap(collection, iteratee) {
-    let res = []; 
+    let res = [];
     for (let i = 0; i < collection.length; i++) {
       res.push(...iteratee(collection[i], i, collection));
     }
@@ -594,30 +594,356 @@ var lichanghui11 = function () {
   }
 
   function flatMapDepth(collection, iteratee, depth = 1) {
-    let res = collection.map(iteratee); 
+    let res = collection.map(iteratee);
     return _flatten(res, depth);
   }
   function _flatten(array, depth) {
-    if (depth === 0) return array; 
+    if (depth === 0) return array;
     return array.reduce((initial, item) => {
       if (Array.isArray(item)) {
         initial.push(...flatten(item, depth - 1));
       } else {
-        initial.push(item); 
+        initial.push(item);
       }
       return initial;
     }, [])
   }
 
-  function get(object, path, defaultValue) {
-    if (!Array.isArray(path)) var temp = path.split('')
+
+  function isEqual(value, other) {
+    if (typeof value !== typeof other) return false;
+    if (Array.isArray(value)) {
+      if (value.length !== other.length) return false;
+      else {
+        for (let i = 0; i < value.length; i++) {
+          if (!isEqual(value[i], other[i])) return false;
+        }
+        return true;
+      }
+    } else if (typeof value === 'object') {
+      return _deepEqual(value, other);
+    } else {
+      return value === other;
+    }
+  }
+  function _deepEqual(obj1, obj2) {
+    let keys1 = Object.keys(obj1);
+    let keys2 = Object.keys(obj2);
+    if (keys1.length !== keys2.length) return false;
+    for (var key of keys1) {
+      if (!keys2.includes(key)) return false;
+    }
+    if (!isEqual(obj1[key], obj2[key])) return false;
+    return true;
   }
 
-  function has(object, path) {
-    
+  function repeat(string = '', n = 1) {
+    let res = '';
+    for (let i = 0; i < n; i++) {
+      res += string;
+    }
+    return res;
   }
+
+  //chars = _-
+  //abcd, length = 2
+  function padStart(string = '', length = 0, chars = ' ') {
+    let res = string;
+    let temp = String(chars).split('');
+    let i = 0;
+    if (res.length > length) return res.slice(0, length);
+    while ((res.length) < length) {
+      res = temp[i] + res;
+      i++;
+      if (temp[i] === undefined) i = 0;
+    }
+    return res;
+  }
+
+  function padEnd(string = '', length = 0, chars = ' ') {
+    let res = string;
+    let temp = String(chars).split('');
+    let i = 0;
+    while (res.length < length) {
+      res += temp[i];
+      i++;
+      if (temp[i] === undefined) i = 0;
+    }
+    return res;
+  }
+
+  function pad(string = '', length = 0, chars = ' ') {
+    let res = string.split('');
+    let temp = String(chars).split('');
+    let i = 0;
+    while (res.length < length) {
+      res.push(temp[i]);
+      if (res.length === length) break;
+      res.splice(i, 0, temp[i]);
+      i++;
+      if (temp[i] === undefined) i = 0;
+    }
+    return res.join('');
+  }
+
+  function keys(object) {
+    if (object === null || object === undefined) return [];
+    return Object.keys(object);
+  }
+
+  function values(object) {
+    if (object === null || object === undefined) return [];
+    return Object.values(object);
+  }
+
+  function random(lower = 0, upper = 1, floating = false) {
+    if (typeof upper === 'boolean') {
+      floating = upper;
+      upper = lower;
+      lower = 0;
+    }
+    if (lower > upper) [lower, upper][upper, lower];
+    if (floating) {
+      return Math.random() * (upper - lower) + lower;
+    } else {
+      return ((Math.random() * (upper - lower)) | 0) + lower;
+    }
+  }
+
+  function trim(string = '', chars = ' ') {
+    let res = '';
+    let temp = String(chars).split('');
+    for (let i = 0; i < string.length; i++) {
+      if (!temp.includes(string[i])) res += string[i];
+    }
+    return res;
+  }
+
+  function trimStart(string = '', chars = ' ') {
+    let res = '';
+    let temp = String(chars).split('');
+    let i = 0;
+    while (temp.includes(string[i])) {
+      i++;
+    }
+    for (; i < string.length; i++) res += string[i];
+    return res;
+  }
+
+  function trimEnd(string = '', chars = ' ') {
+    let res = '';
+    let i = string.length - 1;
+    let temp = String(chars).split('');
+    while (temp.includes(string[i])) i--;
+    for (; i > -1; i--) res = string[i] + res;
+    return res;
+  }
+
+  function assign(object, ...args) {
+    args.forEach(item => {
+      if (item && typeof item === 'object') {
+        for (let key in item) {
+          if (item.hasOwnProperty(key)) object[key] = item[key];
+        }
+      }
+    })
+    return object;
+  }
+
+  function _isObject(arg) {
+    return arg && typeof arg === 'object' && Array.isArray(arg);
+  }
+
+  function parseJSON(string) {
+    let i = 0;
+    return parseValue();
+    function parseValue() {
+      if (string[i] === '{') {
+        return parseObject();
+      } else if (string[i] === '[') {
+        return parseArray();
+      } else if (string[i] === '"') {
+        return parseString();
+      } else if (string[i] === 't') {
+        i += 4;
+        return true;
+      } else if (string[i] === 'f') {
+        i += 5;
+        return false;
+      } else if (string[i] === 'n') {
+        i += 4;
+        return null;
+      } else {
+        return parseNumber();
+      }
+    }
+
+    function parseObject() {
+      i++; //skip the open curly bracket
+      let res = {};
+      if (string[i] === '}') {
+        i++; //skip the close curly bracket
+        return res;
+      }
+      while (i < string.length) {
+        var key = parseString();
+        i++; //skip the colon
+        var value = parseValue();
+        res[key] = value;
+        if (string[i] === '}') break;
+        i++; //skip the comma
+      }
+      i++; //skip the close curly bracket
+      return res;
+    }
+
+    function parseArray() {
+      i++; //skip the open square bracket
+      let res = [];
+      if (string[i] === ']') {
+        i++; //skip the close square bracket
+        return res;
+      }
+      while (i < string.length) {
+        res.push(parseValue());
+        if (string[i] === ']') break;
+        i++; //skip the comma
+      }
+      i++; //skip the close square bracket
+      return res;
+    }
+
+    function parseString() {
+      i++; //skip the open double qoute
+      let currI = i;
+      while (string[i] !== '"') i++;
+      let temp = string.slice(currI, i)
+      i++; //skip the close double qoute
+      return temp;
+    }
+
+    function parseNumber() {
+      //don't skip anything
+      let currI = i;
+      while (string[i] >= '0' && string[i] <= '9') i++;
+      return Number(string.slice(currI, i));
+    }
+  }
+
+  function stringifyJSON(value) {
+    return stringifyValue(value);
+
+    function stringifyValue(value) {
+      let res = '';
+      if (Array.isArray(value)) {
+        res += stArray(value);
+        res += ',';
+      } else if (typeof value === 'object') {
+        res += stObject(value);
+        res += ',';
+      } else if (value === null) {
+        res += 'null';
+      } else if (value === true) {
+        res += 'true';
+      } else if (value === false) {
+        res += 'false';
+      } else if (typeof value === 'string') {
+        res += stString(value);
+      } else {
+        res += String(value);
+      }
+      return res;
+    }
+
+    function stArray(value) {
+      res = '[';
+      if (!value.length) {
+        res += ']';
+        return res;
+      }
+      for (let item of value) {
+        res += stringifyValue(item);
+        res += ',';
+      }
+      res = res.slice(0, res.length - 1);
+      res += ']';
+      return res;
+    }
+
+    function stObject(value) {
+      let res = '{';
+      if (!Object.keys(value).length) {
+        res += '}';
+        return res;
+      }
+      for (let key in value) {
+        res += stString(key) + ':';
+        res += stringifyValue(value[key]);
+        res += ',';
+      }
+      res = res.slice(0, res.length - 1);
+      res += '}';
+      return res;
+    }
+
+    function stString(value) {
+      let res = '"';
+      res += value;
+      res += '"';
+      return res;
+    }
+  }
+  function range(...args) {
+    let res = [];
+    if (arguments.length === 1) {
+      let temp = args[0];
+      if (temp > 0) {
+        for (let i = 0; i < temp; i++) res.push(i);
+      } else {
+        for (let i = 0; i > temp; i--) res.push(i);
+      }
+    } else if (arguments.length === 2) {
+      let temp1 = args[0];
+      let temp2 = args[1];
+      if (temp2 > 0) {
+        for (let i = temp1; i < temp2; i++) res.push(i);
+      } else {
+        for (let i = temp1; i > temp2; i--) res.push(i);
+      }
+    } else {
+      let temp1 = args[0];
+      let temp2 = args[1];
+      let temp3 = args[2];
+      if (temp2 > 0) {
+        for (let i = temp1; i < temp2; i += temp3) {
+          res.push(i);
+          if (res.length === temp2 - 1) break;
+        }
+      } else {
+        temp3 = Math.abs(temp3);
+        for (let i = temp1; i > temp2; i -= temp3) res.push(i);
+      }
+    }
+    return res;
+  }
+
+
   return {
-    get: get,
+    range: range,
+    parseJSON: parseJSON,
+    stringifyJSON: stringifyJSON,
+    assign: assign,
+    trimEnd: trimEnd,
+    trimStart: trimStart,
+    trim: trim,
+    random: random,
+    keys: keys,
+    values: values,
+    pad: pad,
+    padEnd: padEnd,
+    padStart: padStart,
+    repeat: repeat,
+    isEqual: isEqual,
     flatMapDepth: flatMapDepth,
     flatMap: flatMap,
     sumBy: sumBy,

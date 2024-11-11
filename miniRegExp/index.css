@@ -6,6 +6,11 @@
   box-sizing: border-box;
 }
 
+.bottom-bar {
+  height: 50px;
+  background-color: #2193b0;
+  margin-top: 300px;
+}
 
 
 .header {
@@ -53,6 +58,8 @@ textarea {
 
 
 b {
+  font-style: normal;
+  font-weight: 100 !important;
   &:not(:has(:hover)):hover b{
     background-color: inherit;
   }
@@ -93,7 +100,10 @@ b {
     line-height: 1.5;
   }
   > #testInput {
-    z-index: -1;
+    z-index: 1;
+    background-color: transparent;
+  }
+  > #result {
     background-color: transparent;
   }
 }
