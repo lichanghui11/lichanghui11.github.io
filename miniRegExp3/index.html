@@ -11,24 +11,46 @@
 <body>
   <div class="header">
     <!-- The header area -->
-     <div class="helper">
-    <header>Regular Expression Validation</header>
+    <div class="helper">
+      <header>Regular Expression Validation</header>
     </div>
   </div>
 
   <div class="main">
     <!-- The test area -->
     <div class="input">
-      <input id="inputReg" type="text" value="\b\w\w\w\b">
+      <input id="inputReg" type="text" value="a(b(c(de)f))">
       <button class="run">TEST</button>
+      <span class="state" id="timeout">Timeout</span>
     </div>
 
     <div class="output">
+      <div id="tips"></div>
+      <div class="flag">FLAGS</div>
+      <div class="flags">
+        <label><input name="g" type="checkbox" class="" checked>g</label>
+        <label><input name="i" type="checkbox" class="">i</label>
+        <label><input name="m" type="checkbox" class="">m</label>
+        <label><input name="d" type="checkbox" class="" checked>d</label>
+        <label><input name="x" type="checkbox" class="">x</label>
+        <label><input name="s" type="checkbox" class="">s</label>
+        <label><input name="u" type="checkbox" class="">u</label>
+      </div>
+
+      <div class="teststring">TESTSTRING</div>
       <div class="result" contenteditable="true">
-        This a pure test string!<br>
+        This a pure test string!
+        abcdef abcdef
         Feel free to test your string!
+        Don't be upset, just repeat and repeat.
+        abcdef
       </div>
     </div>
+  </div>
+
+  <div class="footer">
+    <!-- This is a footer -->
+    <div class="author">weeesti470@gmail.com</div>
   </div>
   <script src="index.js"></script>
 </body>
