@@ -1,9 +1,10 @@
 /*
 1, woker计算正则 (包括分组， 零宽断言)
 2, 将正则高亮
+3, 还原光标位置
 4, 调整title位置
 
-3, 还原光标位置
+5, replace
 */
 
 
@@ -17,6 +18,7 @@ let flagInput = document.querySelector('.flags'); // 拿到标志位的容器;
 let state = document.querySelector('div.input span.state'); //拿到匹配的状态span标签(done, processing, timeout)；
 let hint = document.querySelector('div.hint'); //拿到语法错误提示元素；
 let title = document.querySelector('#tips'); //浮动title;
+let replace = document.querySelector('div.replace'); // 拿到替换文本元素框；
 
 //--------事件监听区域--
 testBtn.addEventListener('click', run); //监听TEST按钮； 
@@ -47,9 +49,6 @@ output.addEventListener('mouseleave', e => {
     title.style.display = 'none';
   }
 }, true)
-
-
-
 
 
 
