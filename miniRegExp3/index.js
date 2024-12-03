@@ -18,7 +18,8 @@ let flagInput = document.querySelector('.flags'); // 拿到标志位的容器;
 let state = document.querySelector('div.input span.state'); //拿到匹配的状态span标签(done, processing, timeout)；
 let hint = document.querySelector('div.hint'); //拿到语法错误提示元素；
 let title = document.querySelector('#tips'); //浮动title;
-let replace = document.querySelector('div.replace'); // 拿到替换文本元素框；
+let replace = document.querySelector('div.replaceText'); //拿到待替换文本元素框；
+let finalText = document.querySelector('div.finalText'); //拿到替换后结果文本框； 
 
 //--------事件监听区域--
 testBtn.addEventListener('click', run); //监听TEST按钮； 
@@ -28,18 +29,26 @@ window.addEventListener('load', run);//监听加载成功后运行run函数；
 
 
 //--------监听匹配元素漂浮元素位置----
+replace.addEventListener('input', e => {
+  let replaceText = replace.textContent; 
+  let res = ''; //最终结果存在这；
+  let html = output.textContent
+})
+
+console.log(output.innerHTML)
+
 output.addEventListener('mousemove', e => {
   if (e.target.matches('u')) {
-    let u = e.target; 
+    let u = e.target;
     let uBoxes = u.getClientRects();
     let titleInfo = u.dataset.title;
     console.log(titleInfo)
-    let mouseX = e.clientX; 
-    let mouseY = e.clientY; 
+    let mouseX = e.clientX;
+    let mouseY = e.clientY;
     let box = getHoverBoxes(uBoxes, mouseY);
     title.textContent = titleInfo;
     title.style.display = 'block';
-    title.style.top = box.top + 'px'; 
+    title.style.top = box.top + 'px';
     title.style.left = mouseX + 'px';
   }
 })
@@ -75,7 +84,7 @@ function run() {
       throw e;
     }
   }
-  let done = false; 
+  let done = false;
   setTimeout(() => {
     if (done === false)
       state.id = 'processing', state.textContent = 'Processing...'; // 更新状态；
@@ -86,7 +95,7 @@ function run() {
 
     let html = '';
     let lastLastIndex = 0;
-    let matchIndex = 0; 
+    let matchIndex = 0;
     for (let match of matches) {
       html += string.slice(lastLastIndex, match.index);
       html += highLightMatch(match, matchIndex);
@@ -95,7 +104,7 @@ function run() {
     }
     html += string.slice(lastLastIndex);
     var cursorI = getCursorI(output);
-    output.innerHTML = html;    
+    output.innerHTML = html;
     restoreCursorI(output, cursorI);
   }, () => {
     state.id = 'timeout', state.textContent = 'Timeout!'; // 更新状态；
@@ -104,27 +113,31 @@ function run() {
 
 function getCursorI(node) {
   let selection = document.getSelection();
-  let position = 0; //记录光标在文本中的位置； 
-  traversal(node, textNode => {
-    if (textNode === selection.anchorNode) {
-      position += selection.anchorOffset;
-      return false;
-    } else {
-      position += textNode.textContent.length;
-    }
-  })
-  return position;
+  if (selection?.anchorNode?.nodeType === document.TEXT_NODE) {
+    let position = 0; //记录光标在文本中的位置； 
+    traversal(node, textNode => {
+      if (textNode === selection.anchorNode) {
+        position += selection.anchorOffset;
+        return false;
+      } else {
+        position += textNode.textContent.length;
+      }
+    })
+    return position;
+  }
 }
 
 function restoreCursorI(node, index) {
   let selection = document.getSelection();
-  traversal(node, textNode => {
-    if (index > textNode.textContent.length) index -= textNode.textContent.length;
-    else {
-      selection.setPosition(textNode, index);
-      return false;
-    }
-  })
+  if (selection.anchorNode?.className === 'result') {
+    traversal(node, textNode => {
+      if (index > textNode.textContent.length) index -= textNode.textContent.length;
+      else {
+        selection.setPosition(textNode, index);
+        return false;
+      }
+    })
+  }
 }
 
 // 遍历DOM节点
@@ -135,12 +148,12 @@ function traversal(node, func) {
     } else if (child.nodeType === document.ELEMENT_NODE) {
       if (traversal(child, func) === false) return false;
     }
-  } 
+  }
 }
 
 
 
-function getHoverBoxes(boxes, y) { 
+function getHoverBoxes(boxes, y) {
   if (boxes.length === 1) return boxes[0];
   for (let box of boxes) {
     if (y >= box.top && y <= box.bottom) return box;
@@ -165,7 +178,7 @@ function highLightMatch(match, matchIndex) {
   let helper = new Array(match[0].length + 1).fill('');
   let groupIndex = 0;
   for (let index of match.indices) {
-    let i = index[0] - match.index; 
+    let i = index[0] - match.index;
     let j = index[1] - match.index;
     info = [
       `Match ${matchIndex + 1}`,
@@ -179,7 +192,7 @@ function highLightMatch(match, matchIndex) {
   }
   let res = '';
   for (var i = 0; i < match[0].length; i++) {
-    res += helper[i] + match[0][i]; 
+    res += helper[i] + match[0][i];
   }
   res += helper[i];
   return res;
@@ -205,7 +218,7 @@ function getMatchesFromWorker(re, string, successFunc, failedFunc) {
     re: re,
     string: string
   });
-  
+
   worker.addEventListener('message', e => {
     data = e.data;
     received = true;
