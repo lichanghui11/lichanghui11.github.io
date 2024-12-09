@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>异步测试</title>
+  <script src="imgs.js"></script>
+</head>
+
+<body>
+  图片地址： https:/xieranmaya.github.io/images/cats/cats.json
+
+
+
+  <script>
+    //url = imgs.js
+    // 下载给定的url图片， 下载完成后调用callback
+    function downloadImg(url, callback) {
+      let img = new Image();
+      img.onload = () => {
+        callback(img);
+      }
+      img.onerror = () => {
+        callback(img);
+      }
+      img.src = url;
+    }
+
+    let url = 'https:/xieranmaya.github.io/images/cats/cats.json';
+
+
+    function get(url, callback) {
+      let xhr = new XMLHttpRequest();
+      xhr.open('GET', url);
+      xhr.onload = () => {
+        callback(JSON.parse(xhr.responseText));
+      }
+      xhr.send();
+    }
+
+    class TaskQueue1 {
+      //依次处理一个任务； 
+      constructor() {
+        this._queue = [];
+        this._running = false;
+        this._next = this._nextTask.bind(this);
+      }
+
+      _nextTask(task) {
+        if (this._queue.length === 0) {
+          this._running = false;
+        } else {
+          let task = this._queue.shift();
+          task(this._next);
+        }
+      }
+
+      addTask(task) {
+        //添加的任务是一个函数；
+        if (this._running) {
+          this._queue.push(task);
+        } else {
+          this._running = true;
+          this._next(task);
+        }
+        return this;
+      }
+    }
+
+
+    class TaskQueue2 {
+      constructor(parallel = 1) {
+        this.parallel = parallel;
+        this._queue = [];
+        this._running = 0;
+        this._next = this._nextTask.bind(this);
+      }
+
+      _nextTask() {
+        if (this._queue.length === 0) {
+          this._running--;
+        } else {
+          let task = this._queue.shift();
+          task(this._next);
+        }
+      }
+
+      addTask(task) {
+        if (this._running === parallel) {
+          this._queue.push(task);
+        } else {
+          this._running++;
+          task(this._next);
+        }
+        return this;
+      }
+    }
+
+    function downloadOneByOne(callback) {
+      let tq = new TaskQueue1();
+      get(url, imags => {
+        imags.forEach((img) => {
+          tq.addTask(next => {
+            downloadImg(img.fullUrl, () => {
+              let img = new Image();
+              img.src = img.fullUrl;
+              document.body.append(img)
+              next();
+            })
+          })
+        });
+      })
+    }
+
+    function downloadTwoByTwo(callback) {
+      // 两张两张下载；
+
+    }
+
+    function downloadLimit(tasks, limit, callback) {
+
+    }
+
+    function series(arr, callback) {
+      //实现async库的串行执行方法
+
+    }
+
+    function parallel3(arr, callback) {
+
+
+    }
+
+
+  class Task {
+    constructor() {
+      this._queue = []; 
+      this._running = false; 
+      this._next = this._nextTask.bind(this); 
+    }
+
+
+    _nextTask() {
+      if (this._queue.length === 0) {
+        this._running = false;
+      } else {
+        let task = this._queue.shift();
+        task(this._next);
+      }
+    }
+
+    addTask(task) {
+      if (this._running) {
+        this._queue.push(task); 
+      } else {
+        this._running = true;
+        task(this._next);
+      }
+      return this;
+    }
+  }
+  </script>
+</body>
+
+</html>

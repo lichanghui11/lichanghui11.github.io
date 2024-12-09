@@ -83,6 +83,7 @@ div.main {
     word-break: break-all;
     white-space: pre-wrap;
     break-inside: auto;
+    overflow: auto;
     > u {
       &:nth-child(odd) {
         background-color: #d5ebff;
@@ -240,6 +241,7 @@ div.replaceText {
   border-bottom: 1px solid #d4d4d4;
   background-color: white;
   padding: 2px;
+  outline: none;
 }
 
 div.finalText{
@@ -248,4 +250,7 @@ div.finalText{
   margin: auto;  
   margin-top: 5px;
   background-color: white;
+  color: #71716a;
+  overflow-wrap: break-word;
+  overflow: auto;
 }

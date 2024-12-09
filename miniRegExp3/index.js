@@ -28,11 +28,12 @@ output.addEventListener('input', run); //监听文本区域输入完成；
 window.addEventListener('load', run);//监听加载成功后运行run函数； 
 
 
+
+
 //--------监听匹配元素漂浮元素位置----
 replace.addEventListener('input', e => {
-  let replaceText = replace.textContent; 
-  let res = ''; //最终结果存在这；
-  let html = output.textContent
+  replace.style.height = 'auto';
+  replace.style.height = replace.scrollHeight + 'px';
 })
 
 console.log(output.innerHTML)
@@ -233,3 +234,19 @@ function getMatchesFromWorker(re, string, successFunc, failedFunc) {
     }
   }, 2000);
 }
+replace.addEventListener('input', e => {
+  let replacedText = e.target.textContent;
+  let re = inputReg.value;
+  let flags = getFlags(); 
+  let flagG = flags.includes('g') ? true : false;
+  let regularExp = new RegExp(re, flags);
+  let string = output.textContent;
+  let res = '';
+  if (flagG) {
+    res = string.replaceAll(regularExp, replacedText);
+  } else {
+    res = string.replace(regularExp, replacedText);
+  }
+  finalText.textContent = res; 
+})
+
