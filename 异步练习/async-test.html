@@ -14,6 +14,69 @@
 
 
   <script>
+
+
+
+    class TaskQueue {
+      constructor() {
+        this._queue = [];
+        this._running = false;
+        this._next = this._nextTask.bind(this);
+      }
+
+      _nextTask() {
+        if (this._queue.length === 0) {
+          this._running = false;
+        } else {
+          let task = this._queue.shift();
+          task(this._next);
+        }
+      }
+
+      addTask(task) {
+        if (typeof task !== 'function') {
+          throw new Error('task must be a function!');
+        }
+        if (this._running) {
+          this._queue.push(task);
+        } else {
+          this._running = true;
+          task(this._next);
+        }
+        return this;
+      }
+    }
+
+    class TaskQueueParallel {
+      constructor(parallel) {
+        this.parallel = parallel;
+        this._running = 0;
+        this._next = this._nextTask.bind(this);
+        this._queue = [];
+      }
+
+      _nextTask() {
+        if (this._queue.length === 0) {
+          this._running--;
+        } else {
+          let task = this._queue.shift();
+          task(this._next);
+        }
+      }
+
+      addTask(task) {
+        if (typeof task !== 'function') throw new Error('Task is not a function!');
+        if (this._running === this.parallel) {
+          this._queue.push(task);
+        } else {
+          this._running++;
+          task(this._next);
+        }
+        return this;
+      }
+    }
+
+
     //url = imgs.js
     // 下载给定的url图片， 下载完成后调用callback
     function downloadImg(url, callback) {
@@ -39,127 +102,137 @@
       xhr.send();
     }
 
-    class TaskQueue1 {
-      //依次处理一个任务； 
-      constructor() {
-        this._queue = [];
-        this._running = false;
-        this._next = this._nextTask.bind(this);
-      }
+    //任务1： 两个class: 串行、并行；                                        ------> Done!
+    //任务2: function downLoadOneByOne(callback);                         ------> Done!
+    //任务3: function downLoadTwoByTwo(callback);                         ------> Done!
+    //任务4: function downLoadParallel(tasks, limit = 1, callback)        ------> Done!
+    //任务5: function downLoadMax6(callback);                             ------> Done!
 
-      _nextTask(task) {
-        if (this._queue.length === 0) {
-          this._running = false;
-        } else {
-          let task = this._queue.shift();
-          task(this._next);
-        }
-      }
-
-      addTask(task) {
-        //添加的任务是一个函数；
-        if (this._running) {
-          this._queue.push(task);
-        } else {
-          this._running = true;
-          this._next(task);
-        }
-        return this;
-      }
-    }
-
-
-    class TaskQueue2 {
-      constructor(parallel = 1) {
-        this.parallel = parallel;
-        this._queue = [];
-        this._running = 0;
-        this._next = this._nextTask.bind(this);
-      }
-
-      _nextTask() {
-        if (this._queue.length === 0) {
-          this._running--;
-        } else {
-          let task = this._queue.shift();
-          task(this._next);
-        }
-      }
-
-      addTask(task) {
-        if (this._running === parallel) {
-          this._queue.push(task);
-        } else {
-          this._running++;
-          task(this._next);
-        }
-        return this;
-      }
-    }
-
-    function downloadOneByOne(callback) {
-      let tq = new TaskQueue1();
-      get(url, imags => {
-        imags.forEach((img) => {
+    function downLoadOneByOne(callback) {
+      let tq = new TaskQueue();
+      get(url, responseText => {
+        responseText.forEach((item) => {
           tq.addTask(next => {
-            downloadImg(img.fullUrl, () => {
-              let img = new Image();
-              img.src = img.fullUrl;
-              document.body.append(img)
+            downloadImg(item.fullUrl, () => {
+              next();
+            });
+          })
+        })
+      })
+      callback();
+    }
+
+    function downloadTwo(url1, url2, callback) {
+      let c = 0; 
+      downloadImg(url1, () => {
+        c++;
+        if (c === 2) callback()
+      })
+      downloadImg(url2, () => {
+        c++;
+        if (c === 2) callback();
+      })
+    }
+    function chunk(array) {
+      let res = []; 
+      for (let i = 0; i < array.length; i += 2) {
+        res.push(array.slice(i, i + 2));
+      }
+      return res;
+    }
+   
+
+    function downLoadTwoByTwo(callback) {
+      let tq = new TaskQueue();
+      get(url, responseText => {
+        chunk(responseText).forEach(item => {
+          tq.addTask(next => {
+            downloadTwo(item[0].fullUrl, item[1].fullUrl, () => {
               next();
             })
           })
-        });
+        })
       })
     }
 
-    function downloadTwoByTwo(callback) {
-      // 两张两张下载；
+    function downLoadParallel(tasks, limit = 1, callback) {
 
-    }
+      let running = 0;//完成的数量 
+      let j = 0; 
+      if (tasks.length === 0) callback();
 
-    function downloadLimit(tasks, limit, callback) {
+      for (let i = 0; i < limit; i++) {
+        if (j < tasks.length) {
 
-    }
-
-    function series(arr, callback) {
-      //实现async库的串行执行方法
-
-    }
-
-    function parallel3(arr, callback) {
-
-
-    }
-
-
-  class Task {
-    constructor() {
-      this._queue = []; 
-      this._running = false; 
-      this._next = this._nextTask.bind(this); 
-    }
-
-
-    _nextTask() {
-      if (this._queue.length === 0) {
-        this._running = false;
-      } else {
-        let task = this._queue.shift();
-        task(this._next);
+          tasks[j++](next);
+        } 
+      }
+      function next() {
+        running++;
+        if (j < tasks.length) {
+          tasks[j++](next);
+        } else {
+          if (running === tasks.length) {
+            callback();
+          }
+        }
       }
     }
+    // downLoadOneByOne(() => console.log('done'));
+    // downLoadTwoByTwo()
 
-    addTask(task) {
-      if (this._running) {
-        this._queue.push(task); 
-      } else {
-        this._running = true;
-        task(this._next);
-      }
-      return this;
+    function downLoadMax6() {
+      get(url, imgs => {
+        downLoadParallel(imgs.map(img => {
+          //这里应该返回一个函数；
+          return next => {
+            downloadImg(img.fullUrl, () => {
+              next();
+            })
+          }
+        }), 6, () => console.log('done'))  
+      })
     }
-  }
+    downLoadMax6()
+
+
+
+    //Promise 方法实现： 
+      //all 
+      //allSettled
+      //any
+      //race 
+      //reject
+      //resolve
+      //try
+      //withResolvers
+
+      function para(tasks, para = 1, callback) {
+        let len = tasks.length; 
+        if (len === 0) callback();
+
+        let complete = 0; 
+        let j = 0;
+        for (let i = 0; i < para; i++) {
+          if (j < len) {
+            tasks[j](next); 
+            j++;
+          }
+        }
+
+
+        function next() {
+          j++;
+          complete++;
+          if (j < len) {
+            tasks[j](next);
+          } else {
+            if (complete === len) {
+              callback()
+            }
+          }
+        }
+      }
   </script>
 </body>
 
