@@ -130,14 +130,20 @@
             'value': val,
           }
           count++;
-          if (count === promises.length) resolve(res);
+          if (count === promises.length) {
+            resolve(res);
+            return promise;
+          }
         }).catch((reason) => {
           res[i] = {
             'status': 'rejected',
             'reason': reason,
           }
           count++;
-          if (count === promises.length) resolve(res);
+          if (count === promises.length) {
+            resolve(res);
+            return promise;
+          }
         })
       })
       return promise;
@@ -200,9 +206,34 @@
     console.log(xxx(allSamples))
     console.log(myAllSettled2(allSamples))
 
+    Promise.prototype.catch = function (func) {
+      return this.then(null, func);
+    }
 
-    function myTry() {
+    Promise.prototype.finally = function (func) {
+      return this.then(value => {
+        return Promise.resolve(func()).then(() => {
+          return value;
+        })
+      }, reason => {
+        return Promise.resolve(func()).then(() => {
+          throw reason;
+        })
+      })
+    }
 
+    function myTry(func) {
+      //参数为函数；
+      return new Promise((rs, rj) => {
+        try {
+          let temp = func();
+          Promise.resolve(temp).then(value => {
+            rs(value);
+          })
+        } catch (e) {
+          rj(e);
+        }
+      })
     }
     function myResolve(value) {
       if (value instanceof Promise) return value;
