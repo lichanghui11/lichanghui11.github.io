@@ -38,6 +38,7 @@ function parseRegularExpression(string) {
   function parseQuantifier() {
     let node = {
       type: 'Quantifier',
+      quantifier: '',
       start: i,
       end: 0,
       min: 0,
@@ -48,13 +49,16 @@ function parseRegularExpression(string) {
     }
     if (string[i] === '?') {
       // 0 - 1
+      node.quantifier += string[i];
       node.max = 1;
       i++;
     } else if (string[i] === '*') {
       // 0 - Infinity
+      node.quantifier += string[i];
       i++;
     } else if (string[i] === '+') {
       // 1 - Infinity
+      node.quantifier += string[i];
       node.min = 1;
       i++;
     } else if (string[i] === '{') {
@@ -64,16 +68,19 @@ function parseRegularExpression(string) {
       node.min = st;
       i++; //skip the comma ,
       if (string[i] === '}') {
+        node.quantifier += string[i];
         i++;
         node.max = Infinity;
       } else {
         let en = parseInteger();
+        node.quantifier += string[i];
         i++; //skip the close curly brace '}';
         node.max = en;
       }
     }
     if (string[i] === '?') {
       node.greedy = false;
+      node.quantifier += string[i];
       i++;
     }
     node.end = i;
@@ -122,7 +129,7 @@ function parseRegularExpression(string) {
       start: i,
       end: 0,
       raw: '',
-      groups: [], // put all the branches into the group, even though there is only one branch.
+      branches: [], // put all the branches into the group, even though there is only one branch.
       groupName: '',
       groupIndex: groupI,
       capture: true, // is it a captured group? 
@@ -179,7 +186,7 @@ function parseRegularExpression(string) {
       }
     }
 
-    node.groups = parseBranches();
+    node.branches = parseBranches();
     i++; //skip the close parentheses : ')';
 
     //To clearify the group index;
@@ -267,10 +274,6 @@ function parseRegularExpression(string) {
 }
 
 
-function drawRegExpRoad(regExpTree) {
-
-}
-
 function elt(tagName, attributes = {}, ...args) {
   let el = document.createElementNS('http://www.w3.org/2000/svg', tagName);
   if (attributes) {
@@ -284,345 +287,831 @@ function elt(tagName, attributes = {}, ...args) {
       el.append(child);
     }
   }
+  svg.append(el);
   return el;
 }
 
+let input = document.querySelector('div.reg-exp');
+let regExp = input.textContent;
+let regExpTree = parseRegularExpression(regExp);
+console.log(regExpTree)
 let padding = 10;
-let winWidth = window.innerWidth;
+
 let svg = document.querySelector('svg');
-function drawEscapeGraph(escapeNode) {
-  let escapeChar = escapeNode.escapeChar;
+
+//画图开始： 
+// debugger;
+function drawRegExpRoad(nodes) {
+  return nodes.branches.map(drawGraph);
+}
+
+// drawRegExpRoad(regExpTree);
+
+// drawCharGroup(regExpTree.branches[0].elements[0])
+function drawCharGraph(node) {
+  if (node.type === 'Escape') return drawEscapeGraph(node);
   let g = elt('g');
-  if (escapeChar === 'b') {
-    let text = elt('text', {
-      x: padding + (padding / 2), // 15
-      y: padding * 3, // 20
-      width: 100,
-      height: 40,
-      // 'text-anchor': 'middle',
-      // 'dominant-baseline': 'middle',
-    }, 'word boundary');
+  let text = elt('text', {
+    x: padding / 4,
+    y: padding,
+    'dominant-baseline': 'middle',
+  }, '"', node.char, '"');
 
-    let rect = elt('rect', {
-      rx: 3,
-      ry: 3,
-      width: 90 + padding, // 5 + 5
-      height: 28 + (padding / 2), // 2.5 + 2.5
-      x: padding,
-      y: padding,
-      fill: '#bada55',
-    })
-    g.append(rect);
-    g.append(text);
-  }
+  let size = text.getBBox();
 
-  if (escapeChar === 'w') {
-    let text = elt('text', {
-      x: padding + (padding / 2), // 15
-      y: padding * 3, // 20
-      width: 100,
-      height: 40,
-      // 'text-anchor': 'middle',
-      // 'dominant-baseline': 'middle',
-    }, 'word');
-
-    let rect = elt('rect', {
-      rx: 3,
-      ry: 3,
-      width: 35 + padding, // 5 + 5
-      height: 28 + (padding / 2), // 2.5 + 2.5
-      x: padding,
-      y: padding,
-      fill: '#bada55',
-    })
-    g.append(rect);
-    g.append(text);
-  }
-
-  if (escapeChar === 'd') {
-    let text = elt('text', {
-      x: padding + (padding / 2), // 15
-      y: padding * 3, // 20
-      width: 100,
-      height: 40,
-      // 'text-anchor': 'middle',
-      // 'dominant-baseline': 'middle',
-    }, 'digit');
-
-
-    let rect = elt('rect', {
-      rx: 3,
-      ry: 3,
-      width: 35 + padding, // 5 + 5
-      height: 28 + (padding / 2), // 2.5 + 2.5
-      x: padding,
-      y: padding,
-      fill: '#bada55',
-    })
-    g.append(rect);
-    g.append(text);
-  }
-
-  if (escapeChar === 's') {
-    let text = elt('text', {
-      x: padding + (padding / 2), // 15
-      y: padding * 3, // 20
-      width: 100,
-      height: 40,
-      // 'text-anchor': 'middle',
-      // 'dominant-baseline': 'middle',
-    }, 'white-space');
-
-    let rect = elt('rect', {
-      rx: 3,
-      ry: 3,
-      width: 90 + padding, // 5 + 5
-      height: 28 + (padding / 2), // 2.5 + 2.5
-      x: padding,
-      y: padding,
-      fill: '#bada55',
-    })
-    g.append(rect);
-    g.append(text);
-  }
-
-  if (escapeChar === 'r') {
-    let text = elt('text', {
-      x: padding + (padding / 2), // 15
-      y: padding * 3, // 20
-      width: 100,
-      height: 40,
-      // 'text-anchor': 'middle',
-      // 'dominant-baseline': 'middle',
-    }, 'carriage-return');
-
-    let rect = elt('rect', {
-      rx: 3,
-      ry: 3,
-      width: 90 + padding, // 5 + 5
-      height: 28 + (padding / 2), // 2.5 + 2.5
-      x: padding,
-      y: padding,
-      fill: '#bada55',
-    })
-    g.append(rect);
-    g.append(text);
-  }
-
-  if (escapeChar === 'n') {
-    let text = elt('text', {
-      x: padding + (padding / 2), // 15
-      y: padding * 3, // 20
-      width: 100,
-      height: 40,
-      // 'text-anchor': 'middle',
-      // 'dominant-baseline': 'middle',
-    }, 'line-feed');
-
-    let rect = elt('rect', {
-      rx: 3,
-      ry: 3,
-      width: 90 + padding, // 5 + 5
-      height: 28 + (padding / 2), // 2.5 + 2.5
-      x: padding,
-      y: padding,
-      fill: '#bada55',
-    })
-    g.append(rect);
-    g.append(text);
-  }
-
-  if (escapeChar === 'B') {
-    let text = elt('text', {
-      x: padding + (padding / 2), // 15
-      y: padding * 3, // 20
-      width: 100,
-      height: 40,
-      // 'text-anchor': 'middle',
-      // 'dominant-baseline': 'middle',
-    }, 'non-word boundray');
-
-    let rect = elt('rect', {
-      rx: 3,
-      ry: 3,
-      width: 130 + padding, // 5 + 5
-      height: 28 + (padding / 2), // 2.5 + 2.5
-      x: padding,
-      y: padding,
-      fill: '#bada55',
-    })
-    g.append(rect);
-    g.append(text);
-
-  }
-
-  if (escapeChar === 'W') {
-    let text = elt('text', {
-      x: padding + (padding / 2), // 15
-      y: padding * 3, // 20
-      width: 100,
-      height: 40,
-      // 'text-anchor': 'middle',
-      // 'dominant-baseline': 'middle',
-    }, 'non-word');
-
-    let rect = elt('rect', {
-      rx: 3,
-      ry: 3,
-      width: 65 + padding, // 5 + 5
-      height: 28 + (padding / 2), // 2.5 + 2.5
-      x: padding,
-      y: padding,
-      fill: '#bada55',
-    })
-    g.append(rect);
-    g.append(text);
-
-  }
-
-  if (escapeChar === 'D') {
-    let text = elt('text', {
-      x: padding + (padding / 2), // 15
-      y: padding * 3, // 20
-      width: 100,
-      height: 40,
-      // 'text-anchor': 'middle',
-      // 'dominant-baseline': 'middle',
-    }, 'non-digit');
-
-    let rect = elt('rect', {
-      rx: 3,
-      ry: 3,
-      width: 60 + padding, // 5 + 5
-      height: 28 + (padding / 2), // 2.5 + 2.5
-      x: padding,
-      y: padding,
-      fill: '#bada55',
-    })
-    g.append(rect);
-    g.append(text);
-  }
-
-  if (escapeChar === 't') {
-    let text = elt('text', {
-      x: padding + (padding / 2), // 15
-      y: padding * 3, // 20
-      width: 100,
-      height: 40,
-      // 'text-anchor': 'middle',
-      // 'dominant-baseline': 'middle',
-    }, 'tab');
-
-    let rect = elt('rect', {
-      rx: 3,
-      ry: 3,
-      width: 20 + padding, // 5 + 5
-      height: 28 + (padding / 2), // 2.5 + 2.5
-      x: padding,
-      y: padding,
-      fill: '#bada55',
-    })
-    g.append(rect);
-    g.append(text);
-  }
-
-  if (escapeChar === 'S') {
-    let text = elt('text', {
-      x: padding + (padding / 2), // 15
-      y: padding * 3, // 20
-      width: 100,
-      height: 40,
-      // 'text-anchor': 'middle',
-      // 'dominant-baseline': 'middle',
-    }, 'non-white space');
-
-    let rect = elt('rect', {
-      rx: 3,
-      ry: 3,
-      width: 105 + padding, // 5 + 5
-      height: 28 + (padding / 2), // 2.5 + 2.5
-      x: padding,
-      y: padding,
-      fill: '#bada55',
-    })
-    g.append(rect);
-    g.append(text);
-  }
-
-  svg.append(g);
-  let width = g.getBBox().width;
-  let height = g.getBBox().height;
+  let background = elt('rect', {
+    rx: 3,
+    ry: 3,
+    fill: '#dae9e5',
+    width: size.width + padding / 2,
+    height: size.height,
+  });
+  g.append(background, text);
+  let box = g.getBBox();
   return {
-    g, width, height,
+    width: box.width,
+    height: box.height,
+    g,
   }
 }
 
-
-function drawCharGraph(charNode) {
+//node: regExpTree.branches[0].elements[0]
+// drawEscapeGraph(regExpTree.branches[0].elements[0])
+function drawEscapeGraph(node) {
   let g = elt('g');
+  let char = '';
+
+  //判断转译符类型： 
+  if (node.escapeChar === 'd') char = 'digit';
+  if (node.escapeChar === 'b') char = 'word boundary';
+  if (node.escapeChar === 'w') char = 'word';
+  if (node.escapeChar === 's') char = 'white-space';
+  if (node.escapeChar === 'r') char = 'carriage-return';
+  if (node.escapeChar === 'n') char = 'line-feed';
+  if (node.escapeChar === 'B') char = 'non-word boundary';
+  if (node.escapeChar === 'W') char = 'non-word';
+  if (node.escapeChar === 'D') char = 'non-digit';
+  if (node.escapeChar === 'S') char = 'non-white space';
+  if (node.escapeChar === 't') char = 'tab';
+
+  let text = elt('text', {
+    x: padding / 4,
+    y: padding + padding / 4,
+    'dominant-baseline': 'middle',
+    fill: '#1f1c1c',
+  }, char)
+
+  let size = text.getBBox();
   let rect = elt('rect', {
-    width: padding * 3 - 3,
-    height: padding * 2,
-    x: padding,
-    y: padding,
-    fill: '#dae9e5',
     rx: 3,
     ry: 3,
+    fill: '#bada55',
+    width: size.width + padding / 2,
+    height: size.height + padding / 2,
+  })
+  g.append(rect, text);
+  let box = g.getBBox();
+  return {
+    width: box.width,
+    height: box.height,
+    g,
+  }
+}
+
+// drawCharClassGraph(regExpTree.branches[0].elements[0])
+function drawCharClassGraph(nodes) {
+  let invert = nodes.invert ? 'None of:' : 'One of:';
+  let g = elt('g');
+  let classes = nodes.CharClasses.map(drawCharGraph);
+  let width = Math.max(...classes.map(it => it.width)) + padding;
+  let height = classes.map(it => it.height).reduce((a, b) => a + b) + (padding / 2) * (classes.length + 1);
+
+  //文字描述：
+  let textOneOf = elt('text', {
+    'dominant-baseline': 'hanging',
+    y: padding / 3,
+    'font-size': 10,
+  }, invert)
+  let textOneOfBox = textOneOf.getBBox();
+  let textheight = textOneOfBox.height;
+
+  let rect = elt('rect', {
+    width,
+    height,
+    fill: '#cbcbba',
+    rx: 3,
+    ry: 3,
+    y: textheight,
+  })
+
+  //rect是一个底色框； 
+  g.append(textOneOf, rect);
+
+  let temp = padding / 2;
+  for (let item of classes) {
+    item.g.setAttribute('transform', `translate(${(width - item.width) / 2},  ${temp + textheight})`)
+    temp += item.height + padding / 2;
+
+    g.append(item.g);
+  }
+  let box = g.getBBox();
+  return {
+    width: box.width,
+    height: box.height,
+    g,
+  }
+}
+
+// drawBranchGraph(regExpTree.branches[0])
+//这里传入一个分支
+function drawBranchGraph(nodes) {
+  let g = elt('g');
+  let graphs = nodes.elements.map(drawGraph);
+  let height = Math.max(...graphs.map(it => it.height)) + padding * 2;
+  let width = graphs.map(it => it.width).reduce((a, b) => a + b) + padding * (graphs.length + 1);
+
+  //用一个rect撑开整个g标签
+  let rect = elt('rect', {
+    width,
+    height,
+    fill: 'none',
   })
   g.append(rect);
 
-  let text = elt('text');
+  let line = elt('line', {
+    x1: 0,
+    y1: height / 2,
+    x2: padding,
+    y2: height / 2,
+    'stroke-width': 2,
+    'stroke': 'black',
+  })
+  g.append(line);
 
-  let tspan1 = elt('tspan', {
-    x: padding + padding / 2,
-    y: padding * 2,
-    'dominant-baseline': 'middle',
-    fill: '#918c83',
-  }, '"');
-  text.append(tspan1);
-
-  let char = charNode.char;
-  let tspan2 = elt('tspan', {
-    x: padding + padding,
-    y: padding * 2,
-    'dominant-baseline': 'middle',
-    fill: 'black',
-  }, char);
-  text.append(tspan2);
-
-  let tspan3 = elt('tspan', {
-    x: padding + padding * 1.5,
-    y: padding * 2,
-    'dominant-baseline': 'middle',
-    fill: '#918c83',
-  }, '"');
-  text.append(tspan3);
-
-  g.append(text);
-  svg.append(g);
-
-  let width = g.getBBox().width;
-  let height = g.getBBox().height;
-  console.log(g.getBBox())
+  let temp = padding;
+  for (let graph of graphs) {
+    graph.g.setAttribute(`transform`, `translate(${temp}, ${(height - graph.height) / 2})`);
+    temp += graph.width + padding;
+    let line = elt('line', {
+      x1: temp - padding,
+      y1: height / 2,
+      x2: temp,
+      y2: height / 2,
+      'stroke-width': 2,
+      'stroke': 'black',
+    });
+    g.append(graph.g);
+    g.append(line);
+  }
+  let box = g.getBBox();
   return {
-    g, width, height,
+    width: box.width,
+    height: box.height,
+    g,
   }
 }
-function drawOnePart(onePart) {
-  if (onePart.type === 'Escape') {
-    return drawEscapeGraph(onePart);
 
-  } else if (onePart.type === 'Char') {
-    return drawCharGraph(onePart);
+// debugger;
+// drawBranchesGraph(regExpTree.branches);
+function drawBranchesGraph(nodes) {
+  //这里的nodes是一个数组
+  let graphs = nodes.map(it => drawGraph(it));
+  let g = elt('g');
+  let width = Math.max(...graphs.map(it => it.width)) + padding * 4;
+  let height = graphs.map(it => it.height).reduce((a, b) => a + b) + (graphs.length - 1) * padding;
 
-  } else if (onePart.type === 'Quantifier') {
-    return drawQuantifierGraph(onePart);
+  //这个rect用来撑宽g元素；
+  let rect = elt('rect', {
+    width,
+    height,
+    fill: 'none',
+  })
+  g.append(rect);
 
-  } else if (onePart.type === 'CapturedGroup') {
-    return drawCapturedGroupGraph(onePart);
+  let temp = padding;
+  let temp2 = 0;
+  for (let graph of graphs) {
+    graph.g.setAttribute('transform', `translate(${(width - graph.width) / 2}, ${temp - padding})`)
+    temp += graph.height + padding;
+
+    let path = elt('path', {
+      d: `
+        M 0 ${height / 2} 
+        C ${padding} ${height / 2} 
+          ${padding} ${temp2 + graph.height / 2} 
+          ${padding * 2} ${temp2 + graph.height / 2}
+        L ${(width - graph.width) / 2} ${temp2 + graph.height / 2}
+
+        M ${graph.width + (width - graph.width) / 2} ${temp2 + graph.height / 2}
+        L ${width - padding * 2} ${temp2 + graph.height / 2}
+
+        M ${width} ${height / 2}
+        C ${width - padding} ${height / 2}
+          ${width - padding} ${temp2 + graph.height / 2}
+          ${width - padding * 2} ${temp2 + graph.height / 2}
+      `,
+      'stroke-width': 2,
+      stroke: 'black',
+      fill: 'none',
+    })
+    temp2 += graph.height + padding;
+    g.append(path);
+    g.append(graph.g);
   }
 
+  let box = g.getBBox();
+  return {
+    width: box.width,
+    height: box.height,
+    g,
+  }
+}
 
+// debugger;
+// drawCapturedGroupGraph(regExpTree.branches);
+function drawCapturedGroupGraph(nodes) {
+  let groupI = nodes.groupIndex;
+  let graphs = drawBranchesGraph(nodes.branches);
+  let g = elt('g');
+  let width = graphs.width + padding * 2;
+  let height = graphs.height + padding * 2;
 
+  //分组编号：
+  let text = elt('text', {
+    'dominant-baseline': 'hanging',
+    x: padding / 3,
+    y: padding / 3,
+    'font-size': 6,
+  }, `group #${groupI}`)
+  g.append(text);
+  // 撑开g元素;
+  let rect = elt('rect', {
+    width,
+    height,
+    fill: 'none',
+  })
+  g.append(rect);
+
+  let borderRect = elt('rect', {
+    width,
+    height,
+    rx: 3,
+    ry: 3,
+    fill: 'none',
+    stroke: '#918c83',
+    'stroke-width': 2,
+    'stroke-dasharray': '4 4',
+  })
+  g.append(borderRect);
+  graphs.g.setAttribute('transform', `translate(${padding}, ${padding})`)
+  g.append(graphs.g);
+
+  let paddingLine = elt('path', {
+    d: `
+      M 0 ${height / 2}
+      L ${padding} ${height / 2} 
+
+      M ${width - padding} ${height / 2}
+      L ${width} ${height / 2}
+    `,
+    fill: 'none',
+    stroke: 'black',
+    'stroke-width': 2,
+  })
+  g.append(paddingLine);
+  let box = g.getBBox();
+  return {
+    width: box.width,
+    height: box.height,
+    g,
+  }
+
+}
+
+function drawQuantifierGraph(nodes) {
+  let graph = drawGraph(nodes.repeatedElement);
+  let g = elt('g');
+  let width = graph.width + padding * 4;
+  let height = graph.height + padding * 2;
+
+  let rect = elt('rect', {
+    width,
+    height,
+    fill: 'none',
+  })
+  g.append(rect);
+  graph.g.setAttribute('transform', `translate(${padding * 2}, ${padding})`)
+
+  let path = elt('path', {
+    d: `
+      M 0 ${height / 2} 
+      L ${padding * 2} ${height / 2}
+      M ${width - padding * 2} ${height / 2}
+      L ${width} ${height / 2}
+    `,
+    stroke: 'black',
+    'stroke-width': 2,
+  })
+  g.append(path);
+
+  // let lineAbove = elt('path', {
+  //   //没有箭头
+  //   d: `
+  //     M 0 ${height / 2}
+  //     a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+  //     L ${padding} ${padding}
+  //     a ${padding} ${padding} 0 0 1 ${padding} ${-padding}
+  //     L ${width - padding * 2} 0
+  //     a ${padding} ${padding} 0 0 1 ${padding} ${padding}
+  //     L ${width - padding} ${(height / 2) - padding}
+  //     a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+  //   `,
+  //   stroke: 'black',
+  //   'stroke-width': 2,
+  //   fill: 'none',
+  // })
+
+  //---------------------------------------------------
+
+  // let lineAboveWithArrow = elt('path', {
+  //   //有箭头
+  //   d: `
+  //     M 0 ${height / 2} 
+  //     a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+  //     L ${padding} ${padding}
+  //     a ${padding} ${padding} 0 0 1 ${padding} ${-padding}
+  //     L ${width - padding * 2} 0
+  //     a ${padding} ${padding} 0 0 1 ${padding} ${padding}
+  //     L ${width - padding} ${(height / 2) - padding}
+  //     a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+
+  //     M ${padding} ${height / 4} 
+  //     l ${-padding / 3} ${padding / 3}
+  //     M ${padding} ${height / 4} 
+  //     l ${padding / 3} ${padding / 3}
+  //   `,
+  //   stroke: 'black',
+  //   'stroke-width': 2,
+  //   fill: 'none',
+  // })
+  //----------------------------------------------------
+  // let lineBellow = elt('path', {
+  //   //没有箭头
+  //   d: `
+  //     M ${padding * 2} ${height / 2} 
+  //     a ${padding} ${padding} 0 0 0 ${-padding} ${padding}
+  //     L ${padding} ${height - padding}
+  //     a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+  //     L ${width - padding * 2} ${height}
+  //     a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+  //     L ${width - padding} ${height / 2 + padding}
+  //     a ${padding} ${padding} 0 0 0 ${-padding} ${-padding}
+  //   `,
+  //   stroke: 'black',
+  //   'stroke-width': 2,
+  //   fill: 'none',
+  // })
+
+  // let lineBellowWithArrow = elt('path', {
+  //   //有箭头
+  //   d: `
+  //     M ${padding * 2} ${height / 2} 
+  //     a ${padding} ${padding} 0 0 0 ${-padding} ${padding}
+  //     L ${padding} ${height - padding}
+  //     a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+  //     L ${width - padding * 2} ${height}
+  //     a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+  //     L ${width - padding} ${height / 2 + padding}
+  //     a ${padding} ${padding} 0 0 0 ${-padding} ${-padding}
+
+  //     M ${width - padding} ${(height / 4) * 3}
+  //     l ${-padding / 3} ${-padding / 3}
+  //     M ${width - padding} ${(height / 4) * 3}
+  //     l ${padding / 3} ${-padding / 3}
+  //   `,
+  //   stroke: 'black',
+  //   'stroke-width': 2,
+  //   fill: 'none',
+  // })
+
+  let quantifier = nodes.quantifier;
+  //判断量词的类型：
+  //  ?---||---??
+  //  +---||---+?
+  //  *---||---*?
+  //  }---||---}?
+  if (quantifier === '?') {
+    let lineAbove = elt('path', {
+      //没有箭头
+      d: `
+        M 0 ${height / 2}
+        a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+        L ${padding} ${padding}
+        a ${padding} ${padding} 0 0 1 ${padding} ${-padding}
+        L ${width - padding * 2} 0
+        a ${padding} ${padding} 0 0 1 ${padding} ${padding}
+        L ${width - padding} ${(height / 2) - padding}
+        a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+      `,
+      stroke: 'black',
+      'stroke-width': 2,
+      fill: 'none',
+    })
+    g.append(lineAbove);
+
+  } else if (quantifier === '??') {
+    let lineAboveWithArrow = elt('path', {
+      //有箭头
+      d: `
+        M 0 ${height / 2}
+        a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+        L ${padding} ${padding}
+        a ${padding} ${padding} 0 0 1 ${padding} ${-padding}
+        L ${width - padding * 2} 0
+        a ${padding} ${padding} 0 0 1 ${padding} ${padding}
+        L ${width - padding} ${(height / 2) - padding}
+        a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+
+        M ${padding} ${height / 4}
+        l ${-padding / 3} ${-padding / 3}
+        M ${padding} ${height / 4}
+        l ${padding / 3} ${-padding / 3}
+      `,
+      stroke: 'black',
+      'stroke-width': 2,
+      fill: 'none',
+    })
+    g.append(lineAboveWithArrow);
+
+  } else if (quantifier === '+') {
+
+    let lineBellowWithArrow = elt('path', {
+      //有箭头
+      d: `
+        M ${padding * 2} ${height / 2}
+        a ${padding} ${padding} 0 0 0 ${-padding} ${padding}
+        L ${padding} ${height - padding}
+        a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+        L ${width - padding * 2} ${height}
+        a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+        L ${width - padding} ${height / 2 + padding}
+        a ${padding} ${padding} 0 0 0 ${-padding} ${-padding}
+
+        M ${width - padding} ${(height / 4) * 3}
+        l ${-padding / 3} ${-padding / 3}
+        M ${width - padding} ${(height / 4) * 3}
+        l ${padding / 3} ${-padding / 3}
+      `,
+      stroke: 'black',
+      'stroke-width': 2,
+      fill: 'none',
+    })
+    g.append(lineBellowWithArrow);
+  } else if (quantifier === '+?') {
+
+    let lineBellow = elt('path', {
+      //没有箭头
+      d: `
+        M ${padding * 2} ${height / 2}
+        a ${padding} ${padding} 0 0 0 ${-padding} ${padding}
+        L ${padding} ${height - padding}
+        a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+        L ${width - padding * 2} ${height}
+        a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+        L ${width - padding} ${height / 2 + padding}
+        a ${padding} ${padding} 0 0 0 ${-padding} ${-padding}
+      `,
+      stroke: 'black',
+      'stroke-width': 2,
+      fill: 'none',
+    })
+    g.append(lineBellow);
+  } else if (quantifier === '*') {
+    let lineAbove = elt('path', {
+      //没有箭头
+      d: `
+        M 0 ${height / 2}
+        a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+        L ${padding} ${padding}
+        a ${padding} ${padding} 0 0 1 ${padding} ${-padding}
+        L ${width - padding * 2} 0
+        a ${padding} ${padding} 0 0 1 ${padding} ${padding}
+        L ${width - padding} ${(height / 2) - padding}
+        a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+      `,
+      stroke: 'black',
+      'stroke-width': 2,
+      fill: 'none',
+    })
+
+    let lineBellowWithArrow = elt('path', {
+      //有箭头
+      d: `
+        M ${padding * 2} ${height / 2}
+        a ${padding} ${padding} 0 0 0 ${-padding} ${padding}
+        L ${padding} ${height - padding}
+        a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+        L ${width - padding * 2} ${height}
+        a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+        L ${width - padding} ${height / 2 + padding}
+        a ${padding} ${padding} 0 0 0 ${-padding} ${-padding}
+
+        M ${width - padding} ${(height / 4) * 3}
+        l ${-padding / 3} ${-padding / 3}
+        M ${width - padding} ${(height / 4) * 3}
+        l ${padding / 3} ${-padding / 3}
+      `,
+      stroke: 'black',
+      'stroke-width': 2,
+      fill: 'none',
+    })
+    g.append(lineAbove, lineBellowWithArrow);
+
+  } else if (quantifier === '*?') {
+
+    let lineAboveWithArrow = elt('path', {
+      //有箭头
+      d: `
+        M 0 ${height / 2}
+        a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+        L ${padding} ${padding}
+        a ${padding} ${padding} 0 0 1 ${padding} ${-padding}
+        L ${width - padding * 2} 0
+        a ${padding} ${padding} 0 0 1 ${padding} ${padding}
+        L ${width - padding} ${(height / 2) - padding}
+        a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+
+        M ${padding} ${height / 4}
+        l ${-padding / 3} ${padding / 3}
+        M ${padding} ${height / 4}
+        l ${padding / 3} ${padding / 3}
+      `,
+      stroke: 'black',
+      'stroke-width': 2,
+      fill: 'none',
+    })
+
+    let lineBellow = elt('path', {
+      //没有箭头
+      d: `
+        M ${padding * 2} ${height / 2}
+        a ${padding} ${padding} 0 0 0 ${-padding} ${padding}
+        L ${padding} ${height - padding}
+        a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+        L ${width - padding * 2} ${height}
+        a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+        L ${width - padding} ${height / 2 + padding}
+        a ${padding} ${padding} 0 0 0 ${-padding} ${-padding}
+      `,
+      stroke: 'black',
+      'stroke-width': 2,
+      fill: 'none',
+    })
+    g.append(lineAboveWithArrow, lineBellow);
+
+  } else if (quantifier === '}') {
+    if (nodes.min === 1 && nodes.max === Infinity) {
+      // a{1,}
+      let lineBellowWithArrow = elt('path', {
+        //有箭头
+        d: `
+          M ${padding * 2} ${height / 2}
+          a ${padding} ${padding} 0 0 0 ${-padding} ${padding}
+          L ${padding} ${height - padding}
+          a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+          L ${width - padding * 2} ${height}
+          a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+          L ${width - padding} ${height / 2 + padding}
+          a ${padding} ${padding} 0 0 0 ${-padding} ${-padding}
+
+          M ${width - padding} ${(height / 4) * 3}
+          l ${-padding / 3} ${-padding / 3}
+          M ${width - padding} ${(height / 4) * 3}
+          l ${padding / 3} ${-padding / 3}
+        `,
+        stroke: 'black',
+        'stroke-width': 2,
+        fill: 'none',
+      })
+      g.append(lineBellowWithArrow);
+    } else if (nodes.min > 1 && nodes.max === Infinity) {
+      //a{2,} //--> 1+times
+      let min = nodes.min;
+      let lineBellowWithArrow = elt('path', {
+        //有箭头
+        d: `
+          M ${padding * 2} ${height / 2}
+          a ${padding} ${padding} 0 0 0 ${-padding} ${padding}
+          L ${padding} ${height - padding}
+          a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+          L ${width - padding * 2} ${height}
+          a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+          L ${width - padding} ${height / 2 + padding}
+          a ${padding} ${padding} 0 0 0 ${-padding} ${-padding}
+
+          M ${width - padding} ${(height / 4) * 3}
+          l ${-padding / 3} ${-padding / 3}
+          M ${width - padding} ${(height / 4) * 3}
+          l ${padding / 3} ${-padding / 3}
+        `,
+        stroke: 'black',
+        'stroke-width': 2,
+        fill: 'none',
+      })
+
+      let description = elt('text', {
+        'dominant-baseline': 'hanging',
+        'font-size': 8,
+        x: padding * 2,
+        y: height + padding / 4,
+      }, `${min - 1}+ times`)
+      g.append(lineBellowWithArrow, description);
+    } else if (nodes.min === 1 && nodes.max !== Infinity) {
+      //a{1,22} //--> at most 21 times
+      let min = nodes.min, max = nodes.max;
+      let lineBellowWithArrow = elt('path', {
+        //有箭头
+        d: `
+          M ${padding * 2} ${height / 2}
+          a ${padding} ${padding} 0 0 0 ${-padding} ${padding}
+          L ${padding} ${height - padding}
+          a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+          L ${width - padding * 2} ${height}
+          a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+          L ${width - padding} ${height / 2 + padding}
+          a ${padding} ${padding} 0 0 0 ${-padding} ${-padding}
+
+          M ${width - padding} ${(height / 4) * 3}
+          l ${-padding / 3} ${-padding / 3}
+          M ${width - padding} ${(height / 4) * 3}
+          l ${padding / 3} ${-padding / 3}
+        `,
+        stroke: 'black',
+        'stroke-width': 2,
+        fill: 'none',
+      })
+      let description = elt('text', {
+        'dominant-baseline': 'hanging',
+        'font-size': 8,
+        x: padding,
+        y: height + padding / 4,
+      }, `at most ${max - 1} times`)
+      g.append(lineBellowWithArrow, description);
+    } else if (nodes.min > 1 && nodes.max !== Infinity) {
+      //a{2,22} //--> 1...21 times
+      let min = nodes.min, max = nodes.max;
+      let lineBellowWithArrow = elt('path', {
+        //有箭头
+        d: `
+          M ${padding * 2} ${height / 2}
+          a ${padding} ${padding} 0 0 0 ${-padding} ${padding}
+          L ${padding} ${height - padding}
+          a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+          L ${width - padding * 2} ${height}
+          a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+          L ${width - padding} ${height / 2 + padding}
+          a ${padding} ${padding} 0 0 0 ${-padding} ${-padding}
+
+          M ${width - padding} ${(height / 4) * 3}
+          l ${-padding / 3} ${-padding / 3}
+          M ${width - padding} ${(height / 4) * 3}
+          l ${padding / 3} ${-padding / 3}
+        `,
+        stroke: 'black',
+        'stroke-width': 2,
+        fill: 'none',
+      })
+      let description = elt('text', {
+        'dominant-baseline': 'hanging',
+        'font-size': 8,
+        x: padding * 2,
+        y: height + padding / 4,
+      }, `${min - 1}...${max - 1} times`)
+      g.append(lineBellowWithArrow, description);
+    }
+  } else if (quantifier === '}?') {
+    if (nodes.min === 1 && nodes.max === Infinity) {
+      let lineBellow = elt('path', {
+        //没有箭头
+        d: `
+          M ${padding * 2} ${height / 2}
+          a ${padding} ${padding} 0 0 0 ${-padding} ${padding}
+          L ${padding} ${height - padding}
+          a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+          L ${width - padding * 2} ${height}
+          a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+          L ${width - padding} ${height / 2 + padding}
+          a ${padding} ${padding} 0 0 0 ${-padding} ${-padding}
+        `,
+        stroke: 'black',
+        'stroke-width': 2,
+        fill: 'none',
+      })
+      g.append(lineBellow);
+    } else if (nodes.min > 1 && nodes.max === Infinity) {
+      let min = nodes.min, max = nodes.max;
+      let lineBellow = elt('path', {
+        //没有箭头
+        d: `
+          M ${padding * 2} ${height / 2}
+          a ${padding} ${padding} 0 0 0 ${-padding} ${padding}
+          L ${padding} ${height - padding}
+          a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+          L ${width - padding * 2} ${height}
+          a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+          L ${width - padding} ${height / 2 + padding}
+          a ${padding} ${padding} 0 0 0 ${-padding} ${-padding}
+        `,
+        stroke: 'black',
+        'stroke-width': 2,
+        fill: 'none',
+      })
+      let description = elt('text', {
+        'dominant-baseline': 'hanging',
+        'font-size': 8,
+        x: padding * 2,
+        y: height + padding / 4,
+      }, `${min - 1}+ times`)
+      g.append(lineBellow, description);
+    } else if (nodes.min === 1 && nodes.max !== Infinity) {
+      let min = nodes.min, max = nodes.max;
+      let lineBellow = elt('path', {
+        //没有箭头
+        d: `
+          M ${padding * 2} ${height / 2}
+          a ${padding} ${padding} 0 0 0 ${-padding} ${padding}
+          L ${padding} ${height - padding}
+          a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+          L ${width - padding * 2} ${height}
+          a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+          L ${width - padding} ${height / 2 + padding}
+          a ${padding} ${padding} 0 0 0 ${-padding} ${-padding}
+        `,
+        stroke: 'black',
+        'stroke-width': 2,
+        fill: 'none',
+      })
+      let description = elt('text', {
+        'dominant-baseline': 'hanging',
+        'font-size': 8,
+        x: padding,
+        y: height + padding / 4,
+      }, `at most ${max - 1} times`)
+      g.append(lineBellow, description);
+    } else if (nodes.min > 1 && nodes.max !== Infinity) {
+      let min = nodes.min, max = nodes.max;
+      let lineBellow = elt('path', {
+        //没有箭头
+        d: `
+          M ${padding * 2} ${height / 2}
+          a ${padding} ${padding} 0 0 0 ${-padding} ${padding}
+          L ${padding} ${height - padding}
+          a ${padding} ${padding} 0 0 0 ${padding} ${padding}
+          L ${width - padding * 2} ${height}
+          a ${padding} ${padding} 0 0 0 ${padding} ${-padding}
+          L ${width - padding} ${height / 2 + padding}
+          a ${padding} ${padding} 0 0 0 ${-padding} ${-padding}
+        `,
+        stroke: 'black',
+        'stroke-width': 2,
+        fill: 'none',
+      })
+      let description = elt('text', {
+        'dominant-baseline': 'hanging',
+        'font-size': 8,
+        x: padding * 2,
+        y: height + padding / 4,
+      }, `${min - 1}...${max - 1} times`)
+      g.append(lineBellow, description);
+    }
+  }
+
+  let box = g.getBBox();
+  return {
+    width: box.width,
+    height: box.height,
+    g,
+  }
+}
+
+function drawGraph(node) {
+  if (node.type === 'Char') {
+    return drawCharGraph(node);
+
+  } else if (node.type === 'Quantifier') {
+    return drawQuantifierGraph(node);
+
+  } else if (node.type === 'Escape') {
+    return drawEscapeGraph(node);
+
+  } else if (node.type === 'Branch') {
+    return drawBranchGraph(node);
+
+  } else if (node.type === 'CapturedGroup') {
+    return drawCapturedGroupGraph(node);
+
+  } else if (node.type === 'CharClass') {
+    return drawCharClassGraph(node);
+  }
 
 }
