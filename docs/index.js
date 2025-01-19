@@ -314,13 +314,14 @@ function run() {
   svg.innerHTML = '';
   let input = document.querySelector('div.reg-exp');
   let regExp = input.textContent;
+  regExp = regExp.trim();
   let regExpTree = parseRegularExpression(regExp);
   console.log(regExpTree)
   let padding = 10;
   let roadGraph;
 
   drawRegExpRoad(regExpTree);
-  //画图开始： 
+  //画图开始： s
   svg.style.height = roadGraph.height + padding * 2 + 'px';
 
   // drawRegExpRoad(regExpTree);

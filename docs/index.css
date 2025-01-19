@@ -105,8 +105,8 @@ div.input {
 
 div.output {
   margin: 20px;
-  width: auto;
   min-height: 10px;
+  overflow-x: auto;
 
   svg {
     background-color: white;
